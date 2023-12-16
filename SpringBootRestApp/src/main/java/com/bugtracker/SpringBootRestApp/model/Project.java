@@ -1,14 +1,15 @@
 /*PLEASE DO NOT EDIT THIS CODE*/
 /*This code was generated using the UMPLE 1.31.1.5860.78bb27cc6 modeling language!*/
 
-package model;
+package com.bugtracker.SpringBootRestApp.model;
 import java.util.*;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,20 +20,23 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Entity
-public abstract class User
+public class Project
 {
 
-  //User Attributes
-  private String username;
-  private String email;
-  private String password;
+  //Project Attributes
+  private String name;
+  private String description;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
-  //User Associations
-  @OneToMany
-  private Set<Comment> comments;
+  //Project Associations
+	@ManyToOne
+  private ProjectManager projectManager;
+	@ManyToMany
+  private Set<Submitter> submitters;
+	@ManyToOne
+  private Admin admin;
 
 
 }

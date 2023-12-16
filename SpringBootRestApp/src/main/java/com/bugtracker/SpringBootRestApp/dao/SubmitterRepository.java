@@ -1,8 +1,8 @@
-package dao;
+package com.bugtracker.SpringBootRestApp.dao;
 
 import org.springframework.data.repository.CrudRepository;
 
-import model.Submitter;
+import com.bugtracker.SpringBootRestApp.model.Submitter;
 
 public interface SubmitterRepository extends CrudRepository<Submitter, String>{
 	Submitter findById(int id);
@@ -11,6 +11,6 @@ public interface SubmitterRepository extends CrudRepository<Submitter, String>{
 	
 	Submitter findByEmail(String email);
 	
-	Submitter findByProjectId(int projectId);
+	Submitter findByProjectsId(int projectsId);
 
 }

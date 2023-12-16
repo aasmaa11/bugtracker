@@ -1,8 +1,8 @@
-package dao;
+package com.bugtracker.SpringBootRestApp.dao;
 
 import org.springframework.data.repository.CrudRepository;
 
-import model.User;
+import com.bugtracker.SpringBootRestApp.model.User;
 
 public interface UserRepository extends CrudRepository<User, String>{
 	User findById(int id);
@@ -11,6 +11,6 @@ public interface UserRepository extends CrudRepository<User, String>{
 	
 	User findByEmail(String email);
 	
-	User findByCommentId(int commentId);
+	User findByCommentsId(int commentsId);
 
 }

@@ -1,11 +1,11 @@
 /*PLEASE DO NOT EDIT THIS CODE*/
 /*This code was generated using the UMPLE 1.31.1.5860.78bb27cc6 modeling language!*/
 
-package model;
+package com.bugtracker.SpringBootRestApp.model;
 import java.util.*;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.ManyToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,10 +16,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Entity
-public class ProjectManager extends User
+public class Submitter extends User
 {
-  //ProjectManager Associations
-	@OneToMany
-  private Set<Project> projects;
 
+  //Submitter Associations
+	@ManyToMany
+  private Set<Project> projects;
+  
 }

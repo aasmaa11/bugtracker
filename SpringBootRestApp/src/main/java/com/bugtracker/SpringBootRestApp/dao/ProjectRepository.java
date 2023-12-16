@@ -1,9 +1,9 @@
-package dao;
+package com.bugtracker.SpringBootRestApp.dao;
 import java.util.*;
 
 import org.springframework.data.repository.CrudRepository;
 
-import model.Project;
+import com.bugtracker.SpringBootRestApp.model.Project;
 
 public interface ProjectRepository extends CrudRepository<Project, String>{
 	
@@ -13,7 +13,7 @@ public interface ProjectRepository extends CrudRepository<Project, String>{
 	
 	List<Project> findByProjectManagerId(int projectManagerId);
 	
-	List<Project> findBySubmitterId(int submitterId);
+	List<Project> findBySubmittersId(int submittersId);
 	
 	List<Project> findByAdminId(int adminId);
 	

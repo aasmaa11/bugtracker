@@ -1,7 +1,7 @@
 /*PLEASE DO NOT EDIT THIS CODE*/
 /*This code was generated using the UMPLE 1.31.1.5860.78bb27cc6 modeling language!*/
 
-package model;
+package com.bugtracker.SpringBootRestApp.model;
 import java.util.*;
 
 import jakarta.persistence.Entity;
@@ -16,10 +16,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Entity
-public class Developer extends User
+public class ProjectManager extends User
 {
-
-  @OneToMany
-  private Set<Ticket> tickets;
+  //ProjectManager Associations
+	@OneToMany
+  private Set<Project> projects;
 
 }

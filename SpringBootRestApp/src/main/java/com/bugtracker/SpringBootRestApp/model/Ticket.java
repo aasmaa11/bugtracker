@@ -1,7 +1,7 @@
 /*PLEASE DO NOT EDIT THIS CODE*/
 /*This code was generated using the UMPLE 1.31.1.5860.78bb27cc6 modeling language!*/
 
-package model;
+package com.bugtracker.SpringBootRestApp.model;
 import java.util.*;
 
 import org.hibernate.annotations.CreationTimestamp;

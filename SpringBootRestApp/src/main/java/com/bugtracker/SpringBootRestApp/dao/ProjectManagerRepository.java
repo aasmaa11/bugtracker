@@ -1,8 +1,8 @@
-package dao;
+package com.bugtracker.SpringBootRestApp.dao;
 
 import org.springframework.data.repository.CrudRepository;
 
-import model.ProjectManager;
+import com.bugtracker.SpringBootRestApp.model.ProjectManager;
 
 public interface ProjectManagerRepository extends CrudRepository<ProjectManager, String>{
 	ProjectManager findById(int id);
@@ -12,6 +12,6 @@ public interface ProjectManagerRepository extends CrudRepository<ProjectManager,
 	ProjectManager findByEmail(String email);
 	
 	
-	ProjectManager findByProjectId(int projectId);
+	ProjectManager findByProjectsId(int projectsId);
 
 }

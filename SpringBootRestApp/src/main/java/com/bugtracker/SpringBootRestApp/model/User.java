@@ -1,15 +1,15 @@
 /*PLEASE DO NOT EDIT THIS CODE*/
 /*This code was generated using the UMPLE 1.31.1.5860.78bb27cc6 modeling language!*/
 
-package model;
-
-import org.hibernate.annotations.CreationTimestamp;
+package com.bugtracker.SpringBootRestApp.model;
+import java.util.*;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,20 +20,21 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Entity
-public class TicketAttachment
+@Table(name="users")
+public abstract class User
 {
 
-  //TicketAttachment Attributes
-	  @Id
-	  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  //User Attributes
+  private String username;
+  private String email;
+  private String password;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
-  private String file;
-  private String notes;
-  @CreationTimestamp
-  private String creationDate;
 
-  //TicketAttachment Associations
-  @ManyToOne
-  private Ticket ticket;
+  //User Associations
+  @OneToMany
+  private Set<Comment> comments;
+
 
 }

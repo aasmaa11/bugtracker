@@ -1,7 +1,7 @@
 /*PLEASE DO NOT EDIT THIS CODE*/
 /*This code was generated using the UMPLE 1.31.1.5860.78bb27cc6 modeling language!*/
 
-package model;
+package com.bugtracker.SpringBootRestApp.model;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -20,20 +20,19 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Entity
-public class TicketHistory
+public class TicketAttachment
 {
 
-  //TicketHistory Attributes
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  //TicketAttachment Attributes
+	  @Id
+	  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
-  private String propertyChanged;
-  private String oldValueOfProperty;
-  private String newValueOfProperty;
+  private String file;
+  private String notes;
   @CreationTimestamp
-  private String dateOfChange;
+  private String creationDate;
 
-  //TicketHistory Associations
+  //TicketAttachment Associations
   @ManyToOne
   private Ticket ticket;
 

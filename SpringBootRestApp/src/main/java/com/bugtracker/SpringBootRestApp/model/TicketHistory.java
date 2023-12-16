@@ -1,7 +1,7 @@
 /*PLEASE DO NOT EDIT THIS CODE*/
 /*This code was generated using the UMPLE 1.31.1.5860.78bb27cc6 modeling language!*/
 
-package model;
+package com.bugtracker.SpringBootRestApp.model;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -20,25 +20,21 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Entity
-public class Comment
+public class TicketHistory
 {
 
-  //------------------------
-  // MEMBER VARIABLES
-  //------------------------
-
-  //Comment Attributes
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+  //TicketHistory Attributes
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
-  private String message;
+  private String propertyChanged;
+  private String oldValueOfProperty;
+  private String newValueOfProperty;
   @CreationTimestamp
-  private String creationDate;
+  private String dateOfChange;
 
+  //TicketHistory Associations
   @ManyToOne
   private Ticket ticket;
-  @ManyToOne
-  private User commenter;
-
 
 }

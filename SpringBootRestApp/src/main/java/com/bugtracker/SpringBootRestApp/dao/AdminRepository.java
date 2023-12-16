@@ -1,7 +1,7 @@
-package dao;
+package com.bugtracker.SpringBootRestApp.dao;
 import org.springframework.data.repository.CrudRepository;
 
-import model.Admin;
+import com.bugtracker.SpringBootRestApp.model.Admin;
 
 public interface AdminRepository extends CrudRepository<Admin, String>{
     Admin findByUsername(String username);
@@ -10,6 +10,6 @@ public interface AdminRepository extends CrudRepository<Admin, String>{
 
     Admin findByEmail(String email);
     
-    Admin findByProjectId(int projectId);
+    Admin findByProjectsId(int projectsId);
 
 }
