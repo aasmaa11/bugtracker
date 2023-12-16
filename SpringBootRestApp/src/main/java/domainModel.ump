@@ -1,0 +1,162 @@
+namespace model;
+
+class User
+{
+  abstract;
+  username;
+  email;
+  password;
+    unique Integer id;
+}
+
+class Admin
+{
+  isA User;
+  1 -- * Project;
+}
+
+class Developer
+{
+  isA User;
+  0..1 -- * Ticket;
+}
+
+class ProjectManager
+{
+  isA User;
+}
+
+class Submitter
+{
+  isA User;
+}
+
+class Project
+{
+  name;
+description;
+* -- 1 ProjectManager;
+  * -- * Submitter;
+}
+
+class Ticket
+{
+  unique Integer id;
+   enum TicketStatus{
+    New,
+    Open,
+    InProgress,
+    Resolved,
+    AddInfo
+  }
+  	  enum TicketType{
+		    Bug,
+		    FeatureRequest,
+		    DocRequest,
+		    Other
+		  }
+	  enum TicketPriority{
+		    None,
+		    Low,
+		    Medium,
+		    High
+		  }
+  title;
+description;
+TicketPriority priority;
+TicketStatus status;
+TicketType type;
+creationDate;
+updateDate;
+1 -- * TicketAttachment;
+  1 -- * TicketHistory;
+}
+
+class TicketHistory
+{
+  unique Integer id;
+  propertyChanged;
+  oldValueOfProperty;
+  newValueOfProperty;
+  dateOfChange;
+}
+
+class TicketAttachment
+{
+  unique Integer id;
+  file;
+  notes;
+  creationDate;
+}
+
+class Comment
+{
+  unique Integer id;
+  message;
+creationDate;
+* -- 1 Ticket;
+  * -- 1 User commenter;
+}
+
+//$?[End_of_model]$?
+
+namespace -;
+
+
+class User
+{
+  position 48 0 141.292 108.865;
+}
+
+class Admin
+{
+  position 137 159 109 40.8646;
+  position.association Admin__Project 70,41 5,0;
+}
+
+class Developer
+{
+  position 6 156 109 40.8646;
+  position.association Developer__Ticket 62,41 29,0;
+}
+
+class ProjectManager
+{
+  position 285 156 127.208 40.8646;
+}
+
+class Submitter
+{
+  position 447 152 109 40.8646;
+}
+
+class Project
+{
+  position 471 276 148.156 74.8646;
+  position.association Project__ProjectManager 60,0 43,41;
+  position.association Project__Submitter 142,0 20,41;
+}
+
+class Ticket
+{
+  position 34 234 160.427 159.865;
+  position.association Ticket__TicketAttachment 139,177 24,0;
+  position.association Ticket__TicketHistory 171,53 0,7;
+}
+
+class TicketHistory
+{
+  position 258 260 210.74 91.8646;
+}
+
+class TicketAttachment
+{
+  position 100 408 140.292 57.8646;
+}
+
+class Comment
+{
+  position 303 386 160.427 74.8646;
+  position.association Comment__Ticket 0,1 171,119;
+  position.association Comment__User 74,0 142,80;
+}
