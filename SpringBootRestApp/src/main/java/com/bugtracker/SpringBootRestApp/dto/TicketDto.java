@@ -2,6 +2,7 @@ package com.bugtracker.SpringBootRestApp.dto;
 
 import java.util.Set;
 
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -24,5 +25,6 @@ public class TicketDto {
 	  private Set<TicketHistoryDto> ticketHistories;
 	  private DeveloperDto developer;
 	  private Set<CommentDto> comments;
-
+	  private ProjectDto project;
+	  private SubmitterDto submitter;
 }

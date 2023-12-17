@@ -16,5 +16,7 @@ public interface ProjectRepository extends CrudRepository<Project, String>{
 	List<Project> findBySubmittersId(int submittersId);
 	
 	List<Project> findByAdminId(int adminId);
+
+	boolean existsById(int projectId);
 	
 }

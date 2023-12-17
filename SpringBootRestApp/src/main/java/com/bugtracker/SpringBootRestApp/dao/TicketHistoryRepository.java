@@ -10,4 +10,6 @@ public interface TicketHistoryRepository extends CrudRepository<TicketHistory, S
 	TicketHistory findById(int id);
 	
 	List<TicketHistory> findByTicketId(int ticketId);
+	
+	boolean existsById(int id);
 }

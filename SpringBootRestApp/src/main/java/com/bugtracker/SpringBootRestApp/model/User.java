@@ -18,7 +18,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Entity
 @Table(name="users")
 public abstract class User
@@ -28,6 +27,8 @@ public abstract class User
   private String username;
   private String email;
   private String password;
+  private String firstName;
+  private String lastName;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;

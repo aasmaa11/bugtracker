@@ -33,7 +33,7 @@ public class TestAdminPersistence {
         
     }
         
-    /*    
+     
     @Test
     public void testPersistAndLoadAdmin() {
         // Setting primitave attributes for customerAccount
@@ -53,13 +53,13 @@ public class TestAdminPersistence {
 
         // Load the object from the database
         admin = adminRepository.findByUsername(username);
-
+       
         // Checking if attribute values of the saved and loaded object are the same
         assertNotNull(admin);
         assertEquals(username, admin.getUsername());
         assertEquals(password, admin.getPassword());
         assertEquals(email, admin.getEmail());
-    }*/
+    }
 
 
 }

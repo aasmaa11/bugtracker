@@ -6,6 +6,7 @@ import java.util.*;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,6 +22,9 @@ public class Submitter extends User
 
   //Submitter Associations
 	@ManyToMany
-  private Set<Project> projects;
+	private Set<Project> projects;
+	@OneToMany
+	private Set<Ticket> tickets;
+
   
 }

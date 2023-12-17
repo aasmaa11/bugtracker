@@ -13,4 +13,6 @@ public interface DeveloperRepository extends CrudRepository<Developer, String>{
 	
 	Developer findByTicketsId(int ticketsId);
 
+	boolean existsByUsername(String developerUsername);
+
 }

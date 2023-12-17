@@ -10,4 +10,5 @@ import lombok.Data;
 @Builder
 public class SubmitterDto {
 	private Set<ProjectDto> projects;
+	private Set<TicketDto> tickets;
 }

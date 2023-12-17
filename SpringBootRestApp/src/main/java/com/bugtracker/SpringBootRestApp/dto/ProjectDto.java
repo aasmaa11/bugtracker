@@ -2,6 +2,7 @@ package com.bugtracker.SpringBootRestApp.dto;
 
 import java.util.Set;
 
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -15,4 +16,5 @@ public class ProjectDto {
 	  private ProjectManagerDto projectManager;
 	  private Set<SubmitterDto> submitters;
 	  private AdminDto admin;
+	  private Set<TicketDto> tickets;
 }

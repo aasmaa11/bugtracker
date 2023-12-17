@@ -12,4 +12,6 @@ public interface CommentRepository extends CrudRepository<Comment, String>{
 	
 	List<Comment> findByCommenterId(int commenterId);
 
+	boolean existsById(int id);
+
 }

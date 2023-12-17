@@ -16,7 +16,9 @@ import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Data
 @NoArgsConstructor
@@ -25,7 +27,6 @@ import lombok.NoArgsConstructor;
 @Entity
 public class Ticket
 {
-
   public enum TicketStatus { New, Open, InProgress, Resolved, AddInfo }
   public enum TicketType { Bug, FeatureRequest, DocRequest, Other }
   public enum TicketPriority { None, Low, Medium, High }
@@ -53,5 +54,9 @@ public class Ticket
   private Developer developer;
   @OneToMany
   private Set<Comment> comments;
+  @ManyToOne
+  private Project project;
+  @ManyToOne
+  private Submitter submitter;
 
 }

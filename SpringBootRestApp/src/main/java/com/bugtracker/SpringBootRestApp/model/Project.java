@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -34,9 +35,12 @@ public class Project
 	@ManyToOne
   private ProjectManager projectManager;
 	@ManyToMany
-  private Set<Submitter> submitters;
+	private Set<Submitter> submitters;
 	@ManyToOne
   private Admin admin;
+	
+	@OneToMany
+	private Set<Ticket> tickets;
 
 
 }

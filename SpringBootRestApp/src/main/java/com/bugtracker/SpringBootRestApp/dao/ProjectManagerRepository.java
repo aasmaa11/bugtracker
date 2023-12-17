@@ -14,4 +14,6 @@ public interface ProjectManagerRepository extends CrudRepository<ProjectManager,
 	
 	ProjectManager findByProjectsId(int projectsId);
 
+	boolean existsByUsername(String projectManagerUsername);
+
 }
