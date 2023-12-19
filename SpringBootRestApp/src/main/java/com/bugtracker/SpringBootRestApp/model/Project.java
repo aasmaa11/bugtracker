@@ -4,17 +4,22 @@
 package com.bugtracker.SpringBootRestApp.model;
 import java.util.*;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Data
 @NoArgsConstructor
@@ -28,16 +33,19 @@ public class Project
   private String name;
   private String description;
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-  private int id;
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
+	private int id;
 
   //Project Associations
 	@ManyToOne
-  private ProjectManager projectManager;
+	private Admin admin;
+	
+	@ManyToOne
+	private ProjectManager projectManager;
+	
 	@ManyToMany
 	private Set<Submitter> submitters;
-	@ManyToOne
-  private Admin admin;
+
 	
 	@OneToMany
 	private Set<Ticket> tickets;

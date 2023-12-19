@@ -25,8 +25,8 @@ public class TicketAttachment
 
   //TicketAttachment Attributes
 	  @Id
-	  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private int id;
+	  @GeneratedValue(strategy = GenerationType.SEQUENCE)
+	  private int id;
   private String file;
   private String notes;
   @CreationTimestamp

@@ -4,6 +4,7 @@
 package com.bugtracker.SpringBootRestApp.model;
 import java.util.*;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
@@ -16,7 +17,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Entity
-public class Admin extends User
+public class Admin extends UserAccount
 {
 	@OneToMany
 	private Set<Project> projects;

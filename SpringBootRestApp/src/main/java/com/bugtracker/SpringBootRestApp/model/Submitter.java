@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Entity
-public class Submitter extends User
+public class Submitter extends UserAccount
 {
 
   //Submitter Associations

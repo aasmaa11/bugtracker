@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bugtracker.SpringBootRestApp.dao.CommentRepository;
@@ -15,7 +14,7 @@ import com.bugtracker.SpringBootRestApp.dao.SubmitterRepository;
 import com.bugtracker.SpringBootRestApp.dao.TicketHistoryRepository;
 import com.bugtracker.SpringBootRestApp.dao.TicketAttachmentRepository;
 import com.bugtracker.SpringBootRestApp.dao.TicketRepository;
-import com.bugtracker.SpringBootRestApp.dao.UserRepository;
+import com.bugtracker.SpringBootRestApp.dao.UserAccountRepository;
 import com.bugtracker.SpringBootRestApp.model.Comment;
 import com.bugtracker.SpringBootRestApp.model.Developer;
 import com.bugtracker.SpringBootRestApp.model.Project;
@@ -23,10 +22,13 @@ import com.bugtracker.SpringBootRestApp.model.Submitter;
 import com.bugtracker.SpringBootRestApp.model.Ticket;
 import com.bugtracker.SpringBootRestApp.model.TicketAttachment;
 import com.bugtracker.SpringBootRestApp.model.TicketHistory;
-import com.bugtracker.SpringBootRestApp.model.User;
+import com.bugtracker.SpringBootRestApp.model.UserAccount;
 import com.bugtracker.SpringBootRestApp.model.Ticket.TicketPriority;
 import com.bugtracker.SpringBootRestApp.model.Ticket.TicketStatus;
 import com.bugtracker.SpringBootRestApp.model.Ticket.TicketType;
+
+import org.springframework.stereotype.Service;
+
 
 @Service
 public class TicketService {
@@ -38,7 +40,7 @@ public class TicketService {
 	@Autowired DeveloperRepository developerRepository;
 	@Autowired ProjectRepository projectRepository;
 	@Autowired SubmitterRepository submitterRepository;
-	@Autowired UserRepository userRepository;
+	@Autowired UserAccountRepository userRepository;
 	
 	@Transactional
 	public Ticket getTicket(int id) {
@@ -234,7 +236,7 @@ public class TicketService {
 		comment.setMessage(message);
 		Ticket ticket = ticketRepository.findById(ticketId);
 		comment.setTicket(ticket);
-		User commenter = userRepository.findByUsername(commenterUsername);
+		UserAccount commenter = userRepository.findByUsername(commenterUsername);
 		comment.setCommenter(commenter);	
 		commentRepository.save(comment);
 		

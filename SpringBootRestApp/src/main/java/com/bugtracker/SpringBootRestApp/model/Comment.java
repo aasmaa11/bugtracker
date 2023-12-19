@@ -24,8 +24,8 @@ public class Comment
 {
 
   //Comment Attributes
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE)
   private int id;
   private String message;
   @CreationTimestamp
@@ -34,7 +34,7 @@ public class Comment
   @ManyToOne
   private Ticket ticket;
   @ManyToOne
-  private User commenter;
+  private UserAccount commenter;
 
 
 }

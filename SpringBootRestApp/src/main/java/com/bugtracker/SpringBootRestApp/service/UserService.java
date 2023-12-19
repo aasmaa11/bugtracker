@@ -15,14 +15,17 @@ import com.bugtracker.SpringBootRestApp.dao.SubmitterRepository;
 import com.bugtracker.SpringBootRestApp.dao.TicketAttachmentRepository;
 import com.bugtracker.SpringBootRestApp.dao.TicketHistoryRepository;
 import com.bugtracker.SpringBootRestApp.dao.TicketRepository;
-import com.bugtracker.SpringBootRestApp.dao.UserRepository;
+import com.bugtracker.SpringBootRestApp.dao.UserAccountRepository;
 import com.bugtracker.SpringBootRestApp.model.Admin;
 import com.bugtracker.SpringBootRestApp.model.Developer;
 import com.bugtracker.SpringBootRestApp.model.Project;
 import com.bugtracker.SpringBootRestApp.model.ProjectManager;
 import com.bugtracker.SpringBootRestApp.model.Submitter;
-import com.bugtracker.SpringBootRestApp.model.User;
+import com.bugtracker.SpringBootRestApp.model.UserAccount;
+import org.springframework.stereotype.Service;
 
+
+@Service
 public class UserService {
 	
 	public enum UserRole { Admin, ProjectManager, Submitter, Developer }
@@ -34,7 +37,7 @@ public class UserService {
 	@Autowired DeveloperRepository developerRepository;
 	@Autowired ProjectRepository projectRepository;
 	@Autowired SubmitterRepository submitterRepository;
-	@Autowired UserRepository userRepository;
+	@Autowired UserAccountRepository userRepository;
 	@Autowired AdminRepository adminRepository;
 	@Autowired ProjectManagerRepository projectManagerRepository;
 	
@@ -209,10 +212,10 @@ public class UserService {
 			throw new IllegalArgumentException("Username cannot be empty");
 		}
 		if(!userRepository.existsByUsername(username)) {
-			throw new IllegalArgumentException("User does not exist!");
+			throw new IllegalArgumentException("UserAccount does not exist!");
 		}
 		
-		User user = userRepository.findByUsername(username);
+		UserAccount user = userRepository.findByUsername(username);
 		if(user instanceof Admin) {
 			return UserRole.Admin;
 		}
@@ -226,23 +229,23 @@ public class UserService {
 	}
 	
 	@Transactional
-	public User changeUserRole(String username, UserRole userRole) {
+	public UserAccount changeUserRole(String username, UserRole userRole) {
 		String error = "";
 		if(username == null) {
 			error += "Username cannot be empty";
 		}
 		if(userRole == null) {
-			error += "User role cannot be empty";
+			error += "UserAccount role cannot be empty";
 		}
         error = error.trim();
         if (error.length() > 0) {
             throw new IllegalArgumentException(error);
         }
 		if(!userRepository.existsByUsername(username)) {
-			throw new IllegalArgumentException("User does not exist!");
+			throw new IllegalArgumentException("UserAccount does not exist!");
 		}
-		User user = userRepository.findByUsername(username);
-		User newUser;
+		UserAccount user = userRepository.findByUsername(username);
+		UserAccount newUser;
 		if(userRole.equals(UserRole.Admin)) {
 			newUser = createAdmin(user.getUsername(), user.getEmail(), user.getPassword(),
 					user.getFirstName(), user.getLastName());
@@ -306,7 +309,7 @@ public class UserService {
     }
 	
     @Transactional 
-    public User modifyUser(
+    public UserAccount modifyUser(
     		String username,
     		String newUsername,
     		String newEmail,
@@ -314,9 +317,9 @@ public class UserService {
     		String newFirstName,
     		String newLastName) {
         if (!userRepository.existsByUsername(username)) {
-            throw new IllegalArgumentException("User does not exist!");
+            throw new IllegalArgumentException("UserAccount does not exist!");
         }
-        User user = userRepository.findByUsername(username);
+        UserAccount user = userRepository.findByUsername(username);
         if(newUsername != null) {
             if (userRepository.existsByUsername(newUsername)) {
                 throw new IllegalArgumentException("Username already exists");
@@ -385,7 +388,7 @@ public class UserService {
     }
 
 	@Transactional
-	public List<User> getAllUsers() {
+	public List<UserAccount> getAllUsers() {
 		return toList(userRepository.findAll());
 	}
 	

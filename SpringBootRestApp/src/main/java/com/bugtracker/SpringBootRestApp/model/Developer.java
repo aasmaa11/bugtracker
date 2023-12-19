@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Entity
-public class Developer extends User
+public class Developer extends UserAccount
 {
 
   @OneToMany

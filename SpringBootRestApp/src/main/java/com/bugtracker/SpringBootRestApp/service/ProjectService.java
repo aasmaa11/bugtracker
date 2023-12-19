@@ -15,7 +15,7 @@ import com.bugtracker.SpringBootRestApp.dao.SubmitterRepository;
 import com.bugtracker.SpringBootRestApp.dao.TicketAttachmentRepository;
 import com.bugtracker.SpringBootRestApp.dao.TicketHistoryRepository;
 import com.bugtracker.SpringBootRestApp.dao.TicketRepository;
-import com.bugtracker.SpringBootRestApp.dao.UserRepository;
+import com.bugtracker.SpringBootRestApp.dao.UserAccountRepository;
 import com.bugtracker.SpringBootRestApp.model.Admin;
 import com.bugtracker.SpringBootRestApp.model.Project;
 import com.bugtracker.SpringBootRestApp.model.ProjectManager;
@@ -23,6 +23,10 @@ import com.bugtracker.SpringBootRestApp.model.Submitter;
 import com.bugtracker.SpringBootRestApp.dao.ProjectManagerRepository;
 import com.bugtracker.SpringBootRestApp.dao.AdminRepository;
 
+import org.springframework.stereotype.Service;
+
+
+@Service
 public class ProjectService {
 	
 	@Autowired TicketRepository ticketRepository;
@@ -32,7 +36,7 @@ public class ProjectService {
 	@Autowired DeveloperRepository developerRepository;
 	@Autowired ProjectRepository projectRepository;
 	@Autowired SubmitterRepository submitterRepository;
-	@Autowired UserRepository userRepository;
+	@Autowired UserAccountRepository userRepository;
 	@Autowired AdminRepository adminRepository;
 	@Autowired ProjectManagerRepository projectManagerRepository;
 	

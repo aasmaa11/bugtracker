@@ -4,23 +4,25 @@
 package com.bugtracker.SpringBootRestApp.model;
 import java.util.*;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+import jakarta.persistence.InheritanceType;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name="users")
-public abstract class User
+@Inheritance(strategy = InheritanceType.JOINED)
+public abstract class UserAccount
 {
 
   //User Attributes
@@ -30,8 +32,8 @@ public abstract class User
   private String firstName;
   private String lastName;
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-  private int id;
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
+	private int id;
 
   //User Associations
   @OneToMany

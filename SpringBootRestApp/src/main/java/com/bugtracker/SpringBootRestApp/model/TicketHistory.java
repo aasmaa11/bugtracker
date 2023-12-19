@@ -25,7 +25,7 @@ public class TicketHistory
 
   //TicketHistory Attributes
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE)
   private int id;
   private String propertyChanged;
   private String oldValueOfProperty;

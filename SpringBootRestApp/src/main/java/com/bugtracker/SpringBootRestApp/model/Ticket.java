@@ -33,7 +33,7 @@ public class Ticket
 
   //Ticket Attributes
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE)
   private int id;
   private String title;
   private String description;
