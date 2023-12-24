@@ -1,5 +1,7 @@
 package com.bugtracker.SpringBootRestApp.dao;
 
+import java.util.List;
+
 import org.springframework.data.repository.CrudRepository;
 
 import com.bugtracker.SpringBootRestApp.model.Developer;
@@ -11,7 +13,9 @@ public interface DeveloperRepository extends CrudRepository<Developer, String>{
 	
 	Developer findById(int id);
 	
-	Developer findByTicketsId(int ticketsId);
+	List<Developer> findByAssignedTicketsId(int assignedTicketsId);
+	
+	List<Developer> findByProjectsId(int projectsId);
 
 	boolean existsByUsername(String developerUsername);
 

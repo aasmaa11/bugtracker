@@ -17,10 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bugtracker.SpringBootRestApp.model.Comment;
 import com.bugtracker.SpringBootRestApp.model.Developer;
 import com.bugtracker.SpringBootRestApp.model.Project;
-import com.bugtracker.SpringBootRestApp.model.Submitter;
+import com.bugtracker.SpringBootRestApp.model.ProjectManager;
 import com.bugtracker.SpringBootRestApp.model.Ticket;
 import com.bugtracker.SpringBootRestApp.model.TicketAttachment;
 import com.bugtracker.SpringBootRestApp.model.TicketHistory;
+import com.bugtracker.SpringBootRestApp.model.UserAccount;
 import com.bugtracker.SpringBootRestApp.model.Ticket.TicketPriority;
 import com.bugtracker.SpringBootRestApp.model.Ticket.TicketStatus;
 import com.bugtracker.SpringBootRestApp.model.Ticket.TicketType;
@@ -34,8 +35,8 @@ public class TestTicketPersistence {
 	@Autowired private TicketHistoryRepository ticketHistoryRepository;
 	@Autowired private CommentRepository commentRepository;
 	@Autowired private DeveloperRepository developerRepository;
-	@Autowired private SubmitterRepository submitterRepository;
 	@Autowired private ProjectRepository projectRepository;
+	@Autowired private UserAccountRepository userAccountRepository;
 	
     @AfterEach
     public void clearDatabase() {
@@ -43,9 +44,9 @@ public class TestTicketPersistence {
     	ticketRepository.deleteAll();
     	projectRepository.deleteAll();
     	developerRepository.deleteAll();
-    	submitterRepository.deleteAll();
     	ticketAttachmentRepository.deleteAll();
     	commentRepository.deleteAll();;
+    	userAccountRepository.deleteAll();
     	
         
     }
@@ -273,7 +274,9 @@ public class TestTicketPersistence {
 
         // Save the object from the database
         developerRepository.save(developer);
-    	
+        int developerId = developer.getId();
+    	Set<Developer> developers = new HashSet<Developer>();
+    	developers.add(developer);
 		  String title = "test title";
 		  String description = "test description";
 		  TicketPriority priority = TicketPriority.High;
@@ -286,7 +289,7 @@ public class TestTicketPersistence {
 		  ticket.setPriority(priority);
 		  ticket.setStatus(status);
 		  ticket.setType(type);
-		  ticket.setDeveloper(developer);
+		  ticket.setAssignedDevelopers(developers);
 		  
 		  ticketRepository.save(ticket);
 		  int ticketId = ticket.getId();
@@ -303,11 +306,17 @@ public class TestTicketPersistence {
         assertEquals(priority, ticket.getPriority());
         assertEquals(status, ticket.getStatus());
         assertEquals(type, ticket.getType());
-        assertEquals(username, ticket.getDeveloper().getUsername());
-        assertEquals(password, ticket.getDeveloper().getPassword());
-        assertEquals(email, ticket.getDeveloper().getEmail());
-        assertEquals(firstName, ticket.getDeveloper().getFirstName());
-        assertEquals(lastName, ticket.getDeveloper().getLastName());
+        assertEquals(1, ticket.getAssignedDevelopers().size());
+        for (Developer d : ticket.getAssignedDevelopers()) {
+            if (d.getId() == developerId) {
+                assertEquals(username, d.getUsername());
+                assertEquals(password, d.getPassword());
+                assertEquals(email, d.getEmail());
+                assertEquals(firstName, d.getFirstName());
+                assertEquals(lastName, d.getLastName());
+                break;
+            }
+        }
     }
     
     @Test
@@ -319,7 +328,7 @@ public class TestTicketPersistence {
         String firstName = "first";
         String lastName = "last";
 
-        Submitter submitter = new Submitter();
+        UserAccount submitter = new ProjectManager();
         submitter.setUsername(username);
         submitter.setPassword(password);
         submitter.setEmail(email);
@@ -327,7 +336,7 @@ public class TestTicketPersistence {
         submitter.setLastName(lastName);
 
         // Save the object from the database
-        submitterRepository.save(submitter);
+        userAccountRepository.save(submitter);
     	int id = submitter.getId();
 		  String title = "test title";
 		  String description = "test description";

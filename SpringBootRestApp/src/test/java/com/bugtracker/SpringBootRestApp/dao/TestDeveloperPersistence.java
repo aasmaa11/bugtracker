@@ -29,12 +29,15 @@ public class TestDeveloperPersistence {
 	
 	@Autowired private TicketRepository ticketRepository;
 	
+	@Autowired private ProjectRepository projectRepository;
+	
 	
     @AfterEach
     public void clearDatabase() {
         // Clearing the database
     	developerRepository.deleteAll();
     	ticketRepository.deleteAll();
+    	projectRepository.deleteAll();
         
     }
         
@@ -107,7 +110,7 @@ public class TestDeveloperPersistence {
         developer.setEmail(email);
         developer.setFirstName(firstName);
         developer.setLastName(lastName);
-        developer.setTickets(tickets);
+        developer.setAssignedTickets(tickets);
 
         // Save the object from the database
         developerRepository.save(developer);
@@ -124,14 +127,70 @@ public class TestDeveloperPersistence {
         assertEquals(firstName, developer.getFirstName());
         assertEquals(lastName, developer.getLastName());
 
-        assertEquals(1, developer.getTickets().size());
-        for (Ticket t : developer.getTickets()) {
+        assertEquals(1, developer.getAssignedTickets().size());
+        for (Ticket t : developer.getAssignedTickets()) {
             if (t.getId() == ticketId) {
                 assertEquals(title, t.getTitle());
                 assertEquals(description, t.getDescription());
                 assertEquals(priority, t.getPriority());
                 assertEquals(status, t.getStatus());
                 assertEquals(type, t.getType());
+                break;
+            }
+        }
+    }
+    
+    @Test
+    @Transactional
+    public void testAssignProject() {
+    	String name = "ProjectName";
+    	String description = "testing";
+    	
+    	Project project = new Project();
+    	project.setName(name);
+    	project.setDescription(description);
+    	
+    	projectRepository.save(project);
+    	
+    	int id = project.getId();
+    	Set<Project> projects = new HashSet<Project>();
+    	projects.add(project);
+    	
+        // Setting primitave attributes for customerAccount
+        String username = "testName";
+        String password = "12345678";
+        String email = "test@gmail.com";
+        String firstName = "first";
+        String lastName = "last";
+
+        Developer developer = new Developer();
+        developer.setUsername(username);
+        developer.setPassword(password);
+        developer.setEmail(email);
+        developer.setFirstName(firstName);
+        developer.setLastName(lastName);
+        developer.setProjects(projects);
+
+        // Save the object from the database
+        developerRepository.save(developer);
+
+        developer = null;
+
+        // Load the object from the database
+        developer = developerRepository.findByUsername(username);
+        // Checking if attribute values of the saved and loaded object are the same
+        assertNotNull(developer);
+        assertEquals(username, developer.getUsername());
+        assertEquals(password, developer.getPassword());
+        assertEquals(email, developer.getEmail());
+        assertEquals(firstName, developer.getFirstName());
+        assertEquals(lastName, developer.getLastName());
+
+        assertEquals(1, developer.getProjects().size());
+        for (Project p : developer.getProjects()) {
+            if (p.getId() == id) {
+                assertEquals(name, p.getName());
+                assertEquals(description, p.getDescription());
                 break;
             }
         }

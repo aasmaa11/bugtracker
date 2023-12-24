@@ -11,6 +11,8 @@ public interface CommentRepository extends CrudRepository<Comment, String>{
 	List<Comment> findByTicketId(int ticketId);
 	
 	List<Comment> findByCommenterId(int commenterId);
+	
+	List<Comment> findByCommenterUsername(String commenterUsername);
 
 	boolean existsById(int id);
 

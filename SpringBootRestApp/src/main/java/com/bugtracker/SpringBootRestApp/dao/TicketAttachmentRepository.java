@@ -9,6 +9,10 @@ public interface TicketAttachmentRepository extends CrudRepository<TicketAttachm
 	TicketAttachment findById(int id);
 	
 	List<TicketAttachment> findByTicketId(int ticketId);
+	
+	List<TicketAttachment> findByCreatorId(int creatorId);
+	
+	List<TicketAttachment> findByCreatorUsername(String creatorUsername);
 
 	boolean existsById(int id);
 

@@ -11,6 +11,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
@@ -50,13 +51,13 @@ public class Ticket
   private Set<TicketAttachment> ticketAttachments;
   @OneToMany
   private Set<TicketHistory> ticketHistories;
-  @ManyToOne
-  private Developer developer;
+  @ManyToMany
+  private Set<Developer> assignedDevelopers;
   @OneToMany
   private Set<Comment> comments;
   @ManyToOne
   private Project project;
   @ManyToOne
-  private Submitter submitter;
+  private UserAccount submitter;
 
 }

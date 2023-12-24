@@ -9,8 +9,6 @@ public interface AdminRepository extends CrudRepository<Admin, String>{
     Admin findById(int id);
 
     Admin findByEmail(String email);
-    
-    Admin findByProjectsId(int projectsId);
 
 	boolean existsByUsername(String adminUsername);
 

@@ -37,14 +37,12 @@ public class Project
 	private int id;
 
   //Project Associations
-	@ManyToOne
-	private Admin admin;
 	
 	@ManyToOne
 	private ProjectManager projectManager;
 	
 	@ManyToMany
-	private Set<Submitter> submitters;
+	private Set<Developer> assignedDevelopers;
 
 	
 	@OneToMany

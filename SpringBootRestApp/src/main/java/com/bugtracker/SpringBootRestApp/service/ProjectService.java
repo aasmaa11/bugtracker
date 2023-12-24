@@ -11,15 +11,15 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bugtracker.SpringBootRestApp.dao.CommentRepository;
 import com.bugtracker.SpringBootRestApp.dao.DeveloperRepository;
 import com.bugtracker.SpringBootRestApp.dao.ProjectRepository;
-import com.bugtracker.SpringBootRestApp.dao.SubmitterRepository;
 import com.bugtracker.SpringBootRestApp.dao.TicketAttachmentRepository;
 import com.bugtracker.SpringBootRestApp.dao.TicketHistoryRepository;
 import com.bugtracker.SpringBootRestApp.dao.TicketRepository;
 import com.bugtracker.SpringBootRestApp.dao.UserAccountRepository;
 import com.bugtracker.SpringBootRestApp.model.Admin;
+import com.bugtracker.SpringBootRestApp.model.Developer;
 import com.bugtracker.SpringBootRestApp.model.Project;
 import com.bugtracker.SpringBootRestApp.model.ProjectManager;
-import com.bugtracker.SpringBootRestApp.model.Submitter;
+import com.bugtracker.SpringBootRestApp.model.Ticket;
 import com.bugtracker.SpringBootRestApp.dao.ProjectManagerRepository;
 import com.bugtracker.SpringBootRestApp.dao.AdminRepository;
 
@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ProjectService {
+
 	
 	@Autowired TicketRepository ticketRepository;
 	@Autowired TicketAttachmentRepository ticketAttachmentRepository;
@@ -35,28 +36,37 @@ public class ProjectService {
 	@Autowired CommentRepository commentRepository;
 	@Autowired DeveloperRepository developerRepository;
 	@Autowired ProjectRepository projectRepository;
-	@Autowired SubmitterRepository submitterRepository;
 	@Autowired UserAccountRepository userRepository;
 	@Autowired AdminRepository adminRepository;
 	@Autowired ProjectManagerRepository projectManagerRepository;
 	
+	@Transactional
+	public List<Project> getAllProjectsForDeveloper(String username){
+		return toList(projectRepository.findByAssignedDevelopersUsername(username));
+	}
+	
+	@Transactional
+	public Project getProject(int id) {
+		return projectRepository.findById(id);
+	}
+	
+	@Transactional
+	public Project getProjectForTicket(int id) {
+		return projectRepository.findByTicketsId(id);
+	}
 	
 	@Transactional
 	public Project createProject(
 			String name,
 			String description,
 			String projectManagerUsername,
-			Set<Submitter> submitters,
-			String adminUsername) {
+			Set<Developer> assignedDevelopers) {
 		String error = "";
 		if(name == null) {
 			error += "Name cannot be empty";
 		}
 		if(projectManagerUsername == null) {
 			error += "Project manager cannot be empty";
-		}
-		if(adminUsername == null) {
-			error += "Admin cannot be empty";
 		}
         error = error.trim();
         if (error.length() > 0) {
@@ -66,18 +76,13 @@ public class ProjectService {
         if (!projectManagerRepository.existsByUsername(projectManagerUsername)) {
             throw new IllegalArgumentException("Project manager does not exist!");
         }
-        if (!adminRepository.existsByUsername(adminUsername)) {
-            throw new IllegalArgumentException("Admin does not exist!");
-        }
         ProjectManager projectManager = projectManagerRepository.findByUsername(projectManagerUsername);
-        Admin admin = adminRepository.findByUsername(adminUsername);
-    			
-        Project project = new Project();
+
+    	Project project = new Project();
 		project.setName(name);	
 		project.setDescription(description);
 		project.setProjectManager(projectManager);
-		project.setSubmitters(submitters);
-		project.setAdmin(admin);
+		project.setAssignedDevelopers(assignedDevelopers);
 		projectRepository.save(project);
 		return project;
 	}
@@ -92,14 +97,15 @@ public class ProjectService {
         if (error.length() > 0) {
             throw new IllegalArgumentException(error);
         }
-		ProjectManager projectManager = projectManagerRepository.findByProjectsId(projectId);
+        ProjectManager projectManager = projectManagerRepository.findByProjectsId(projectId);
+        
 		return projectManager;
         
 	}
 
 	@Transactional
-	public List<Submitter> getAllSubmittersForProject(int projectId){
-		return toList(submitterRepository.findByProjectsId(projectId));
+	public List<Developer> getAllAssignedDevelopersForProject(int projectId){
+		return toList(developerRepository.findByProjectsId(projectId));
 	}
 	
 	@Transactional
@@ -140,25 +146,25 @@ public class ProjectService {
 	}
 	
 	@Transactional
-	public Project addSubmitterToProject(
+	public Project addDeveloperToProject(
 			Integer projectId,
-			String submitterUsername) {
+			String username) {
         if (!projectRepository.existsById(projectId)) {
             throw new IllegalArgumentException("Project does not exist!");
         }
-        if (!submitterRepository.existsByUsername(submitterUsername)) {
-            throw new IllegalArgumentException("Submitter does not exist!");
+        if (!developerRepository.existsByUsername(username)) {
+            throw new IllegalArgumentException("Developer does not exist!");
         }
         Project project = projectRepository.findById(projectId);
-        Submitter submitter = submitterRepository.findByUsername(submitterUsername);
+        Developer developer = developerRepository.findByUsername(username);
         
-        if(project.getSubmitters() == null) {
-        	Set<Submitter> submitters = new HashSet<Submitter>();
-        	submitters.add(submitter);
-        	project.setSubmitters(submitters);
+        if(project.getAssignedDevelopers() == null) {
+        	Set<Developer> developers = new HashSet<Developer>();
+        	developers.add(developer);
+        	project.setAssignedDevelopers(developers);
         	
         }else {
-        	project.getSubmitters().add(submitter);
+        	project.getAssignedDevelopers().add(developer);
         }
         
  
@@ -179,22 +185,22 @@ public class ProjectService {
     }
 	
     @Transactional
-    public Project removeSubmitterFromProject(
+    public Project removeDeveloperFromProject(
 			Integer projectId,
-			String submitterUsername) {
+			String username) {
         if (!projectRepository.existsById(projectId)) {
             throw new IllegalArgumentException("Project does not exist!");
         }
-        if (!submitterRepository.existsByUsername(submitterUsername)) {
-            throw new IllegalArgumentException("Submitter does not exist!");
+        if (!developerRepository.existsByUsername(username)) {
+            throw new IllegalArgumentException("Developer does not exist!");
         }
         Project project = projectRepository.findById(projectId);
-        Submitter submitter = submitterRepository.findByUsername(submitterUsername);
+        Developer developer = developerRepository.findByUsername(username);
         
-        if(project.getSubmitters() != null) {
-	        for (Submitter s : project.getSubmitters()) {
-	            if (s.getId() == submitter.getId()) {
-	            	project.getSubmitters().remove(s);
+        if(project.getAssignedDevelopers() != null) {
+	        for (Developer d : project.getAssignedDevelopers()) {
+	            if (d.getId() == developer.getId()) {
+	            	project.getAssignedDevelopers().remove(d);
 	                break;
 	            }
 	        }
@@ -219,4 +225,5 @@ public class ProjectService {
         }
         return resultList;
     }
+    
 }

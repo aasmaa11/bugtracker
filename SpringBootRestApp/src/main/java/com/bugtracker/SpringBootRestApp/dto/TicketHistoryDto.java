@@ -1,13 +1,16 @@
 package com.bugtracker.SpringBootRestApp.dto;
 
 
-import com.bugtracker.SpringBootRestApp.model.Ticket;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class TicketHistoryDto {
 	  private int id;
 	  private String propertyChanged;

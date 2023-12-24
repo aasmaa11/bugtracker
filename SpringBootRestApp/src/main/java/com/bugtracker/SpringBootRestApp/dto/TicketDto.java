@@ -1,17 +1,21 @@
 package com.bugtracker.SpringBootRestApp.dto;
 
-import java.util.Set;
+import java.util.List;
 
+import com.bugtracker.SpringBootRestApp.model.Ticket.TicketPriority;
+import com.bugtracker.SpringBootRestApp.model.Ticket.TicketStatus;
+import com.bugtracker.SpringBootRestApp.model.Ticket.TicketType;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class TicketDto {
-	  public enum TicketStatus { New, Open, InProgress, Resolved, AddInfo }
-	  public enum TicketType { Bug, FeatureRequest, DocRequest, Other }
-	  public enum TicketPriority { None, Low, Medium, High }
 
 	  private int id;
 	  private String title;
@@ -21,10 +25,12 @@ public class TicketDto {
 	  private TicketType type;
 	  private String creationDate;
 	  private String updateDate;
-	  private Set<TicketAttachmentDto> ticketAttachments;
-	  private Set<TicketHistoryDto> ticketHistories;
-	  private DeveloperDto developer;
-	  private Set<CommentDto> comments;
+
+	  private List<TicketAttachmentDto> ticketAttachments;
+	  private List<TicketHistoryDto> ticketHistories;
+	  private List<DeveloperDto> assignedDevelopers;
+	  private List<CommentDto> comments;
 	  private ProjectDto project;
-	  private SubmitterDto submitter;
+	  private UserDto submitter;
+
 }

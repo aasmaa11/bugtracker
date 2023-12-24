@@ -5,7 +5,7 @@ package com.bugtracker.SpringBootRestApp.model;
 import java.util.*;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.ManyToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +19,10 @@ import lombok.NoArgsConstructor;
 public class Developer extends UserAccount
 {
 
-  @OneToMany
-  private Set<Ticket> tickets;
+  @ManyToMany
+  private Set<Ticket> assignedTickets;
+
+  @ManyToMany
+  private Set<Project> projects;
 
 }

@@ -14,11 +14,9 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @Builder
 @Entity
 public class Admin extends UserAccount
 {
-	@OneToMany
-	private Set<Project> projects;
+	
 }

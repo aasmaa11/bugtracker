@@ -37,7 +37,7 @@ public class TestTicketHistoryPersistence {
      
     @Test
     @Transactional
-    public void testPersistAndLoadTicketAttachment() {
+    public void testPersistAndLoadTicketHistory() {
         // Setting primitive attributes for customerAccount
         String propertyChanged = "test property";
         String oldValueOfProperty = "old";

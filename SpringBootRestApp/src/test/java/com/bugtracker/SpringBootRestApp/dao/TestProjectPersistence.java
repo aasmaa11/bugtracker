@@ -18,7 +18,6 @@ import com.bugtracker.SpringBootRestApp.model.Admin;
 import com.bugtracker.SpringBootRestApp.model.Developer;
 import com.bugtracker.SpringBootRestApp.model.Project;
 import com.bugtracker.SpringBootRestApp.model.ProjectManager;
-import com.bugtracker.SpringBootRestApp.model.Submitter;
 import com.bugtracker.SpringBootRestApp.model.Ticket;
 import com.bugtracker.SpringBootRestApp.model.Ticket.TicketPriority;
 import com.bugtracker.SpringBootRestApp.model.Ticket.TicketStatus;
@@ -30,8 +29,7 @@ public class TestProjectPersistence {
 	
 	@Autowired private ProjectRepository projectRepository;
 	@Autowired private TicketRepository ticketRepository;
-	@Autowired private SubmitterRepository submitterRepository;
-	@Autowired private AdminRepository adminRepository;
+	@Autowired private DeveloperRepository developerRepository;
 	@Autowired private ProjectManagerRepository projectManagerRepository;
 	
 	
@@ -39,9 +37,8 @@ public class TestProjectPersistence {
     public void clearDatabase() {
         // Clearing the database
     	projectRepository.deleteAll();
-    	submitterRepository.deleteAll();
     	ticketRepository.deleteAll();
-    	adminRepository.deleteAll();
+    	developerRepository.deleteAll();
     	projectManagerRepository.deleteAll();        
     }
         
@@ -129,27 +126,25 @@ public class TestProjectPersistence {
     
     @Test
     @Transactional
-    public void testAssignSubmitter() {
-        // Setting primitave attributes for customerAccount
+    public void testAssignDeveloper() {
         String username = "testName";
         String password = "12345678";
         String email = "test@gmail.com";
         String firstName = "first";
         String lastName = "last";
 
-        Submitter submitter = new Submitter();
-        submitter.setUsername(username);
-        submitter.setPassword(password);
-        submitter.setEmail(email);
-        submitter.setFirstName(firstName);
-        submitter.setLastName(lastName);
-        
+        Developer developer = new Developer();
+        developer.setUsername(username);
+        developer.setPassword(password);
+        developer.setEmail(email);
+        developer.setFirstName(firstName);
+        developer.setLastName(lastName);
 
         // Save the object from the database
-        submitterRepository.save(submitter);
-        int submitterId = submitter.getId();
-    	Set<Submitter> submitters = new HashSet<Submitter>();
-    	submitters.add(submitter);
+        developerRepository.save(developer);
+        int developerId = developer.getId();
+    	Set<Developer> developers = new HashSet<Developer>();
+    	developers.add(developer);
     	
         // Setting primitave attributes for customerAccount
     	String name = "ProjectName";
@@ -158,7 +153,7 @@ public class TestProjectPersistence {
     	Project project = new Project();
     	project.setName(name);
     	project.setDescription(descriptionP);
-    	project.setSubmitters(submitters);
+    	project.setAssignedDevelopers(developers);
     	
     	projectRepository.save(project);
     	
@@ -173,67 +168,17 @@ public class TestProjectPersistence {
         assertEquals(name, project.getName());
         assertEquals(descriptionP, project.getDescription());
 
-        assertEquals(1, project.getSubmitters().size());
-        for (Submitter s : project.getSubmitters()) {
-            if (s.getId() == submitterId) {
-                assertEquals(username, s.getUsername());
-                assertEquals(password, s.getPassword());
-                assertEquals(email, s.getEmail());
-                assertEquals(firstName, s.getFirstName());
-                assertEquals(lastName, s.getLastName());
+        assertEquals(1, project.getAssignedDevelopers().size());
+        for (Developer d : project.getAssignedDevelopers()) {
+            if (d.getId() == developerId) {
+                assertEquals(username, d.getUsername());
+                assertEquals(password, d.getPassword());
+                assertEquals(email, d.getEmail());
+                assertEquals(firstName, d.getFirstName());
+                assertEquals(lastName, d.getLastName());
                 break;
             }
         }
-    }
-    
-    @Test
-    @Transactional
-    public void testAssignAdmin() {
-        // Setting primitave attributes for customerAccount
-        String username = "testName";
-        String password = "12345678";
-        String email = "test@gmail.com";
-        String firstName = "first";
-        String lastName = "last";
-
-        Admin admin = new Admin();
-        admin.setUsername(username);
-        admin.setPassword(password);
-        admin.setEmail(email);
-        admin.setFirstName(firstName);
-        admin.setLastName(lastName);
-
-        // Save the object from the database
-        adminRepository.save(admin);
-    	
-        // Setting primitave attributes for customerAccount
-    	String name = "ProjectName";
-    	String descriptionP = "testing";
-    	
-    	Project project = new Project();
-    	project.setName(name);
-    	project.setDescription(descriptionP);
-    	project.setAdmin(admin);
-    	
-    	projectRepository.save(project);
-    	
-    	int id = project.getId();
-
-        project = null;
-
-        // Load the object from the database
-        project = projectRepository.findById(id);
-        // Checking if attribute values of the saved and loaded object are the same
-        assertNotNull(project);
-        assertEquals(name, project.getName());
-        assertEquals(descriptionP, project.getDescription());
-        assertEquals(username, project.getAdmin().getUsername());
-        assertEquals(password, project.getAdmin().getPassword());
-        assertEquals(email, project.getAdmin().getEmail());
-        assertEquals(firstName, project.getAdmin().getFirstName());
-        assertEquals(lastName, project.getAdmin().getLastName());
-
-
     }
     
     

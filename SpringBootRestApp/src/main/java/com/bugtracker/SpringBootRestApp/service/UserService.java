@@ -11,7 +11,6 @@ import com.bugtracker.SpringBootRestApp.dao.CommentRepository;
 import com.bugtracker.SpringBootRestApp.dao.DeveloperRepository;
 import com.bugtracker.SpringBootRestApp.dao.ProjectManagerRepository;
 import com.bugtracker.SpringBootRestApp.dao.ProjectRepository;
-import com.bugtracker.SpringBootRestApp.dao.SubmitterRepository;
 import com.bugtracker.SpringBootRestApp.dao.TicketAttachmentRepository;
 import com.bugtracker.SpringBootRestApp.dao.TicketHistoryRepository;
 import com.bugtracker.SpringBootRestApp.dao.TicketRepository;
@@ -20,7 +19,6 @@ import com.bugtracker.SpringBootRestApp.model.Admin;
 import com.bugtracker.SpringBootRestApp.model.Developer;
 import com.bugtracker.SpringBootRestApp.model.Project;
 import com.bugtracker.SpringBootRestApp.model.ProjectManager;
-import com.bugtracker.SpringBootRestApp.model.Submitter;
 import com.bugtracker.SpringBootRestApp.model.UserAccount;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +34,6 @@ public class UserService {
 	@Autowired CommentRepository commentRepository;
 	@Autowired DeveloperRepository developerRepository;
 	@Autowired ProjectRepository projectRepository;
-	@Autowired SubmitterRepository submitterRepository;
 	@Autowired UserAccountRepository userRepository;
 	@Autowired AdminRepository adminRepository;
 	@Autowired ProjectManagerRepository projectManagerRepository;
@@ -123,47 +120,6 @@ public class UserService {
 		projectManagerRepository.save(projectManager);
 		return projectManager;
 	}
-	
-	@Transactional
-	public Submitter createSubmitter(
-			String username,
-			String email,
-			String password,
-			String firstName,
-			String lastName) {
-
-		String error = "";
-		if(username == null) {
-			error += "Username cannot be empty";
-		}
-		if(email == null) {
-			error += "Email cannot be empty";
-		}
-		if(password == null) {
-			error += "Password cannot be empty";
-		}
-		if(firstName == null) {
-			error += "First name cannot be empty";
-		}
-		if(lastName == null) {
-			error += "Last name cannot be empty";
-		}
-        error = error.trim();
-        if (error.length() > 0) {
-            throw new IllegalArgumentException(error);
-        }
-		if(userRepository.existsByUsername(username)) {
-			throw new IllegalArgumentException("Username already exists!");
-		}
-		Submitter submitter = new Submitter();
-		submitter.setUsername(username);
-		submitter.setEmail(email);
-		submitter.setPassword(password);
-		submitter.setFirstName(firstName);
-		submitter.setLastName(lastName);
-		submitterRepository.save(submitter);
-		return submitter;
-	}
 
 	@Transactional
 	public Developer createDeveloper(
@@ -222,9 +178,6 @@ public class UserService {
 		if(user instanceof ProjectManager) {
 			return UserRole.ProjectManager;
 		}
-		if(user instanceof Submitter) {
-			return UserRole.Submitter;
-		}
 		return UserRole.Developer;	
 	}
 	
@@ -241,27 +194,29 @@ public class UserService {
         if (error.length() > 0) {
             throw new IllegalArgumentException(error);
         }
-		if(!userRepository.existsByUsername(username)) {
+		UserAccount user = userRepository.findByUsername(username);
+		if(user == null) {
 			throw new IllegalArgumentException("UserAccount does not exist!");
 		}
-		UserAccount user = userRepository.findByUsername(username);
-		UserAccount newUser;
-		if(userRole.equals(UserRole.Admin)) {
+		UserAccount newUser = user;
+		if(userRole.equals(UserRole.Admin) && !(user instanceof Admin)) {
+			userRepository.delete(user);
 			newUser = createAdmin(user.getUsername(), user.getEmail(), user.getPassword(),
 					user.getFirstName(), user.getLastName());
-		}else if(userRole.equals(UserRole.ProjectManager)) {
+			
+		}else if(userRole.equals(UserRole.ProjectManager) && !(user instanceof ProjectManager)) {
+			userRepository.delete(user);
 			newUser = createProjectManager(user.getUsername(), user.getEmail(), user.getPassword(),
 					user.getFirstName(), user.getLastName());
-		}else if(userRole.equals(UserRole.Submitter)) {
-			newUser = createSubmitter(user.getUsername(), user.getEmail(), user.getPassword(),
-					user.getFirstName(), user.getLastName());
-		}else {
+			
+		}else if(userRole.equals(UserRole.Developer) && !(user instanceof Developer)){
+			userRepository.delete(user);
 			newUser = createDeveloper(user.getUsername(), user.getEmail(), user.getPassword(),
 					user.getFirstName(), user.getLastName());
+			
 		}
-		userRepository.delete(user);
-		return newUser;
 		
+		return newUser;
 	}
 
     @Transactional
@@ -286,16 +241,7 @@ public class UserService {
         return projectManager;
     }
     
-    @Transactional
-    public Submitter deleteSubmitter(String username) {
-        if (!submitterRepository.existsByUsername(username)) {
-            throw new IllegalArgumentException("Submitter does not exist!");
-        }
-        
-        Submitter submitter = submitterRepository.findByUsername(username);
-        submitterRepository.delete(submitter);
-        return submitter;
-    }
+
     
     @Transactional
     public Developer deleteDeveloper(String username) {
@@ -365,16 +311,6 @@ public class UserService {
         return projectManager;
     }
 
-    @Transactional
-    public Submitter getSubmitter(String username) {
-        if (!submitterRepository.existsByUsername(username)) {
-            throw new IllegalArgumentException("Submitter does not exist!");
-        }
-        
-        Submitter submitter = submitterRepository.findByUsername(username);
-        
-        return submitter;
-    }
     
     @Transactional
     public Developer getDeveloper(String username) {

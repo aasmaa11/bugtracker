@@ -1,6 +1,7 @@
 package com.bugtracker.SpringBootRestApp.service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -10,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bugtracker.SpringBootRestApp.dao.CommentRepository;
 import com.bugtracker.SpringBootRestApp.dao.DeveloperRepository;
 import com.bugtracker.SpringBootRestApp.dao.ProjectRepository;
-import com.bugtracker.SpringBootRestApp.dao.SubmitterRepository;
 import com.bugtracker.SpringBootRestApp.dao.TicketHistoryRepository;
 import com.bugtracker.SpringBootRestApp.dao.TicketAttachmentRepository;
 import com.bugtracker.SpringBootRestApp.dao.TicketRepository;
@@ -18,7 +18,6 @@ import com.bugtracker.SpringBootRestApp.dao.UserAccountRepository;
 import com.bugtracker.SpringBootRestApp.model.Comment;
 import com.bugtracker.SpringBootRestApp.model.Developer;
 import com.bugtracker.SpringBootRestApp.model.Project;
-import com.bugtracker.SpringBootRestApp.model.Submitter;
 import com.bugtracker.SpringBootRestApp.model.Ticket;
 import com.bugtracker.SpringBootRestApp.model.TicketAttachment;
 import com.bugtracker.SpringBootRestApp.model.TicketHistory;
@@ -32,15 +31,44 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TicketService {
-	
+
 	@Autowired TicketRepository ticketRepository;
 	@Autowired TicketAttachmentRepository ticketAttachmentRepository;
 	@Autowired TicketHistoryRepository ticketHistoryRepository;
 	@Autowired CommentRepository commentRepository;
 	@Autowired DeveloperRepository developerRepository;
 	@Autowired ProjectRepository projectRepository;
-	@Autowired SubmitterRepository submitterRepository;
 	@Autowired UserAccountRepository userRepository;
+	
+	@Transactional
+	public Ticket getTicketForTicketHistory(int id) {
+		return ticketRepository.findByTicketHistoriesId(id);
+	}
+	
+	@Transactional
+	public UserAccount getSubmitterForTicket(int id) {
+		return userRepository.findByCreatedTicketsId(id);
+	}
+	
+	@Transactional
+	public Ticket getTicketOfComment(int commentId) {
+		return ticketRepository.findByCommentsId(commentId);
+	}
+	
+	@Transactional
+	public Ticket getTicketForTicketAttachment(int id) {
+		return ticketRepository.findByTicketAttachmentsId(id);
+	}
+	
+	@Transactional
+	public UserAccount getCommenterForComment(int commentId) {
+		return userRepository.findByCommentsId(commentId);
+	}
+	
+	@Transactional
+	public UserAccount getCreatorForTicketAttachment(int id) {
+		return userRepository.findByTicketAttachmentsId(id);
+	}
 	
 	@Transactional
 	public Ticket getTicket(int id) {
@@ -64,7 +92,17 @@ public class TicketService {
 	
 	@Transactional
 	public List<Ticket> getAllTicketsForDeveloper(int developerId) {
-		return toList(ticketRepository.findByDeveloperId(developerId));
+		return toList(ticketRepository.findByAssignedDevelopersId(developerId));
+	}
+	
+	@Transactional
+	public List<Developer> getAllDevelopersForTicket(int ticketId) {
+		return toList(developerRepository.findByAssignedTicketsId(ticketId));
+	}
+	
+	@Transactional
+	public List<Ticket> getAllTicketsForDeveloperWithUsername(String developerUsername) {
+		return toList(ticketRepository.findByAssignedDevelopersUsername(developerUsername));
 	}
 	
 	@Transactional
@@ -73,9 +111,10 @@ public class TicketService {
 	}
 	
 	@Transactional
-	public List<Ticket> getAllTicketsForDeveloper(String developerUsername) {
-		return toList(ticketRepository.findByDeveloperUsername(developerUsername));
+	public List<Ticket> getAllTicketsForSubmitterWithUsername(String submitterUsername) {
+		return toList(ticketRepository.findBySubmitterUsername(submitterUsername));
 	}
+	
 	
 	@Transactional
 	public List<Ticket> getAllTicketsForProject(int projectId){
@@ -88,6 +127,12 @@ public class TicketService {
 	}
 	
 	@Transactional
+	public List<TicketAttachment> getAllTicketAttachmentForUser(String username){
+		return toList(ticketAttachmentRepository.findByCreatorUsername(username));
+	}
+	
+	
+	@Transactional
 	public List<TicketHistory> getAllTicketHistoryForTicket(int ticketId){
 		return toList(ticketHistoryRepository.findByTicketId(ticketId));
 	}
@@ -95,6 +140,11 @@ public class TicketService {
 	@Transactional
 	public List<Comment> getAllCommentForTicket(int ticketId){
 		return toList(commentRepository.findByTicketId(ticketId));
+	}
+	
+	@Transactional
+	public List<Comment> getAllCommentForUser(String username){
+		return toList(commentRepository.findByCommenterUsername(username));
 	}
 	
 	@Transactional 
@@ -105,7 +155,7 @@ public class TicketService {
 			Ticket.TicketStatus status,
 			Ticket.TicketType type,
 			Set<TicketAttachment> ticketAttachments,
-			String developerUsername,
+			Set<Developer> developers,
 			Set<Comment> comments,
 			Integer projectId,
 			String submitterUsername) {
@@ -141,12 +191,11 @@ public class TicketService {
 		ticket.setType(type);
 		ticket.setStatus(status);
 		ticket.setTicketAttachments(ticketAttachments);
-		Developer developer = developerRepository.findByUsername(developerUsername);
-		ticket.setDeveloper(developer);
+		ticket.setAssignedDevelopers(developers);
 		ticket.setComments(comments);
 		Project project = projectRepository.findById(projectId);
 		ticket.setProject(project);
-		Submitter submitter = submitterRepository.findByUsername(submitterUsername);
+		UserAccount submitter = userRepository.findByUsername(submitterUsername);
 		ticket.setSubmitter(submitter);
 		
 		ticketRepository.save(ticket);
@@ -154,16 +203,20 @@ public class TicketService {
 	}
 	
 	@Transactional 
-	public TicketAttachment createTicketAttachment(
+	public Ticket addTicketAttachment(
+			Integer ticketId,
 			String file,
 			String notes,
-			Integer ticketId) {
+			String creatorUsername) {
 		String error = "";
 		if(file == null) {
 			error += "File cannot be empty";
 		}
 		if(ticketId == null) {
 			error += "Ticket ID cannot be empty";
+		}
+		if(creatorUsername == null) {
+			error += "Ticket attachment creator username cannot be empty";
 		}
         error = error.trim();
         if (error.length() > 0) {
@@ -175,16 +228,28 @@ public class TicketService {
 		ticketAttachment.setNotes(notes);
 		Ticket ticket = ticketRepository.findById(ticketId);
 		ticketAttachment.setTicket(ticket);
+		UserAccount creator = userRepository.findByUsername(creatorUsername);
+		ticketAttachment.setCreator(creator);
 		ticketAttachmentRepository.save(ticketAttachment);
-		return ticketAttachment;
+		
+        if(ticket.getTicketAttachments()== null) {
+        	Set<TicketAttachment> ticketAttachments = new HashSet<TicketAttachment>();
+        	ticketAttachments.add(ticketAttachment);
+        	ticket.setTicketAttachments(ticketAttachments);
+        	
+        }else {
+        	ticket.getTicketAttachments().add(ticketAttachment);
+        }
+		ticketRepository.save(ticket);
+		return ticket;
 	}
 	
 	@Transactional
-	public TicketHistory createTicketHistory(
+	public Ticket addTicketHistory(
+			Integer ticketId,
 			String propertyChanged,
 			String oldValueOfProperty,
-			String newValueOfProperty,
-			Integer ticketId) {
+			String newValueOfProperty) {
 		
 		String error = "";
 		if(propertyChanged == null) {
@@ -210,11 +275,20 @@ public class TicketService {
 		Ticket ticket = ticketRepository.findById(ticketId);
 		ticketHistory.setTicket(ticket);
 		ticketHistoryRepository.save(ticketHistory);
-		return ticketHistory;
+        if(ticket.getTicketHistories()== null) {
+        	Set<TicketHistory> ticketHistories = new HashSet<TicketHistory>();
+        	ticketHistories.add(ticketHistory);
+        	ticket.setTicketHistories(ticketHistories);
+        	
+        }else {
+        	ticket.getTicketHistories().add(ticketHistory);
+        }
+        ticketRepository.save(ticket);
+		return ticket;
 	}
 
 	@Transactional
-	public Comment createComment(
+	public Ticket createComment(
 			String message,
 			Integer ticketId,
 			String commenterUsername) {
@@ -239,8 +313,16 @@ public class TicketService {
 		UserAccount commenter = userRepository.findByUsername(commenterUsername);
 		comment.setCommenter(commenter);	
 		commentRepository.save(comment);
-		
-		return comment;
+        if(ticket.getComments()== null) {
+        	Set<Comment> comments = new HashSet<Comment>();
+        	comments.add(comment);
+        	ticket.setComments(comments);
+        	
+        }else {
+        	ticket.getComments().add(comment);
+        }
+        ticketRepository.save(ticket);
+		return ticket;
 	}
 	
     @Transactional
@@ -288,7 +370,7 @@ public class TicketService {
     }
     
     @Transactional
-    public Ticket assignTicketToDeveloper(
+    public Ticket addAssignedDeveloper(
     		Integer ticketId,
     		String developerUsername) {
         if (!ticketRepository.existsById(ticketId)) {
@@ -300,7 +382,14 @@ public class TicketService {
         
         Ticket ticket = ticketRepository.findById(ticketId);
         Developer developer = developerRepository.findByUsername(developerUsername);
-        ticket.setDeveloper(developer);
+        if(ticket.getAssignedDevelopers() == null) {
+        	Set<Developer> developers = new HashSet<Developer>();
+        	developers.add(developer);
+        	ticket.setAssignedDevelopers(developers);
+        	
+        }else {
+        	ticket.getAssignedDevelopers().add(developer);
+        }
         ticketRepository.save(ticket);
         return ticket;
     }
@@ -318,28 +407,29 @@ public class TicketService {
         }
         Ticket ticket = ticketRepository.findById(id);
         if(!ticket.getTitle().equals(title)) {
-        	createTicketHistory("title", ticket.getTitle(),
-        			title, id);
+        	addTicketHistory(id, "title", ticket.getTitle(),
+        			title);
         	ticket.setTitle(title);
         }
+        
         if(!ticket.getDescription().equals(description)) {
-        	createTicketHistory("description", ticket.getDescription(),
-        			description, id);
+        	addTicketHistory(id, "description", ticket.getDescription(),
+        			description);
         	ticket.setDescription(description);
         }
         if(!ticket.getPriority().equals(priority)) {
-        	createTicketHistory("priority", ticket.getPriority().toString(),
-        			priority.toString(), id);
+        	addTicketHistory(id, "priority", ticket.getPriority().toString(),
+        			priority.toString());
         	ticket.setPriority(priority);
         }
         if(!ticket.getStatus().equals(status)) {
-        	createTicketHistory("status", ticket.getStatus().toString(),
-        			status.toString(), id);
+        	addTicketHistory(id, "status", ticket.getStatus().toString(),
+        			status.toString());
         	ticket.setStatus(status);
         }   
         if(!ticket.getType().equals(type)) {
-        	createTicketHistory("type", ticket.getType().toString(),
-        			type.toString(), id);
+        	addTicketHistory(id, "type", ticket.getType().toString(),
+        			type.toString());
         	ticket.setType(type);
         } 
         ticketRepository.save(ticket);

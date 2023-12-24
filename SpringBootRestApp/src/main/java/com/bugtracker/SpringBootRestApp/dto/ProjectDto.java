@@ -1,20 +1,22 @@
 package com.bugtracker.SpringBootRestApp.dto;
 
-import java.util.Set;
+import java.util.List;
 
-
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class ProjectDto {
-	  private String name;
-	  private String description;
-	  private int id;
+	private int id;
+	private String name;
+	private String description;
 
-	  private ProjectManagerDto projectManager;
-	  private Set<SubmitterDto> submitters;
-	  private AdminDto admin;
-	  private Set<TicketDto> tickets;
+	private ProjectManagerDto projectManager;
+	private List<DeveloperDto> assignedDevelopers;
+	private List<TicketDto> tickets;
 }

@@ -20,20 +20,22 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Entity
-public class TicketAttachment
-{
+public class TicketAttachment {
 
-  //TicketAttachment Attributes
-	  @Id
-	  @GeneratedValue(strategy = GenerationType.SEQUENCE)
-	  private int id;
-  private String file;
-  private String notes;
-  @CreationTimestamp
-  private String creationDate;
+	// TicketAttachment Attributes
+	@Id
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
+	private int id;
+	private String file;
+	private String notes;
+	@CreationTimestamp
+	private String creationDate;
 
-  //TicketAttachment Associations
-  @ManyToOne
-  private Ticket ticket;
+	// TicketAttachment Associations
+	@ManyToOne
+	private Ticket ticket;
+
+	@ManyToOne
+	private UserAccount creator;
 
 }

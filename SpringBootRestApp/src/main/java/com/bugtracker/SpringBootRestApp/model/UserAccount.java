@@ -38,6 +38,12 @@ public abstract class UserAccount
   //User Associations
   @OneToMany
   private Set<Comment> comments;
+  
+  @OneToMany
+  private Set<Ticket> createdTickets;
+  
+  @OneToMany
+  private Set<TicketAttachment> ticketAttachments;
 
 
 }
