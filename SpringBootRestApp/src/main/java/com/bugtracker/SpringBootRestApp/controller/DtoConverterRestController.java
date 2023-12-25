@@ -183,8 +183,8 @@ public class DtoConverterRestController {
 				projectManager.setTicketAttachments(convertToDto(ticketAttachments, toLoad.get(Loads.TicketAttachments)));
 				
 			}if (toLoad.has(Loads.Projects)) {
-				List<Project> projects = projectService.getAllProjectsForDeveloper(p.getUsername());
-				projectManager.setTicketAttachments(convertToDto(projects, toLoad.get(Loads.Projects)));
+				List<Project> projects = projectService.getAllProjectsForProjectManager(p.getUsername());
+				projectManager.setProjects(convertToDto(projects, toLoad.get(Loads.Projects)));
 				
 			}
 		}
@@ -282,6 +282,40 @@ public class DtoConverterRestController {
 		return ticketHistoryDto;
 	}
 
+	
+
+	public UserDto convertToDto(UserAccount a) {
+		return convertToDto(a, null);
+	}
+
+	public UserDto convertToDto(UserAccount a, DtoConverterToLoad toLoad) {
+		if (a == null) {
+			return null;
+		}
+		UserDto userDto = new UserDto();
+		userDto.setUsername(a.getUsername());
+		userDto.setEmail(a.getEmail());
+		userDto.setPassword(a.getPassword());
+		userDto.setFirstName(a.getFirstName());
+		userDto.setLastName(a.getLastName());
+
+		if (toLoad != null) {
+			if (toLoad.has(Loads.Comments)) {
+				List<Comment> comments = ticketService.getAllCommentForUser(a.getUsername());
+				userDto.setComments(convertToDto(comments, toLoad.get(Loads.Comments)));
+			}
+			if (toLoad.has(Loads.CreatedTickets)) {
+				List<Ticket> tickets = ticketService.getAllTicketsForSubmitterWithUsername(a.getUsername());
+				userDto.setCreatedTickets(convertToDto(tickets, toLoad.get(Loads.CreatedTickets)));
+		
+			}if (toLoad.has(Loads.TicketAttachments)) {
+				List<TicketAttachment> ticketAttachments = ticketService.getAllTicketAttachmentForUser(a.getUsername());
+				userDto.setTicketAttachments(convertToDto(ticketAttachments, toLoad.get(Loads.TicketAttachments)));
+			}
+		}
+		return userDto;
+	}
+	
     public <D, T> List<D> convertToDto(List<T> os) {
         return convertToDto(os, null);
     }

@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
 	
-	public enum UserRole { Admin, ProjectManager, Submitter, Developer }
+	public enum UserRole { Admin, ProjectManager, Developer }
 	
 	@Autowired TicketRepository ticketRepository;
 	@Autowired TicketAttachmentRepository ticketAttachmentRepository;
@@ -321,6 +321,17 @@ public class UserService {
         Developer developer = developerRepository.findByUsername(username);
         
         return developer;
+    }
+    
+    @Transactional
+    public UserAccount getUser(String username) {
+        if (!userRepository.existsByUsername(username)) {
+            throw new IllegalArgumentException("User does not exist!");
+        }
+        
+        UserAccount user = userRepository.findByUsername(username);
+        
+        return user;
     }
 
 	@Transactional

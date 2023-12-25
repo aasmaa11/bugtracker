@@ -1,6 +1,6 @@
 package com.bugtracker.SpringBootRestApp.dto;
 
-import java.util.Set;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProjectManagerDto extends UserDto{
-	private Set<ProjectDto> projects;
+	private List<ProjectDto> projects;
 }

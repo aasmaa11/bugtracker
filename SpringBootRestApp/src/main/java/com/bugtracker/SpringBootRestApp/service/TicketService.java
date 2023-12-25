@@ -22,9 +22,6 @@ import com.bugtracker.SpringBootRestApp.model.Ticket;
 import com.bugtracker.SpringBootRestApp.model.TicketAttachment;
 import com.bugtracker.SpringBootRestApp.model.TicketHistory;
 import com.bugtracker.SpringBootRestApp.model.UserAccount;
-import com.bugtracker.SpringBootRestApp.model.Ticket.TicketPriority;
-import com.bugtracker.SpringBootRestApp.model.Ticket.TicketStatus;
-import com.bugtracker.SpringBootRestApp.model.Ticket.TicketType;
 
 import org.springframework.stereotype.Service;
 
@@ -44,6 +41,7 @@ public class TicketService {
 	public Ticket getTicketForTicketHistory(int id) {
 		return ticketRepository.findByTicketHistoriesId(id);
 	}
+
 	
 	@Transactional
 	public UserAccount getSubmitterForTicket(int id) {

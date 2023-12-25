@@ -169,6 +169,23 @@ public class TestProjectService {
                     }
                 });
         
+        lenient()
+        .when(projectDao.findByProjectManagerUsername(anyString()))
+        .thenAnswer(
+                (InvocationOnMock invocation) -> {
+                    if (invocation.getArgument(0).equals(PROJECT_MANAGER_KEY)) {
+                        List<Project> projects = new ArrayList<>();
+
+                        Project project = new Project();
+                        project.setName(PROJECT_NAME);
+                        project.setDescription(PROJECT_DESCRIPTION);
+                        projects.add(project);
+                        return projects;
+                    	
+                    }else {
+                        return null;
+                    }
+                });
 
         lenient()
         .when(developerDao.findByUsername(anyString()))
@@ -260,6 +277,15 @@ public class TestProjectService {
     @Test
     public void testGetAllProjectsForDeveloper() {
         List<Project> projects = projectService.getAllProjectsForDeveloper(DEV3_USERNAME);
+        assertEquals(1, projects.size());
+        Project project = projects.get(0);
+        assertEquals(PROJECT_NAME, project.getName());
+        assertEquals(PROJECT_DESCRIPTION, project.getDescription());
+    }
+    
+    @Test
+    public void testGetAllProjectsForProjectManager() {
+        List<Project> projects = projectService.getAllProjectsForProjectManager(PROJECT_MANAGER_KEY);
         assertEquals(1, projects.size());
         Project project = projects.get(0);
         assertEquals(PROJECT_NAME, project.getName());

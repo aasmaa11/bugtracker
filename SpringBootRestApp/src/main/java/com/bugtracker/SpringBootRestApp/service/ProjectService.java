@@ -15,11 +15,9 @@ import com.bugtracker.SpringBootRestApp.dao.TicketAttachmentRepository;
 import com.bugtracker.SpringBootRestApp.dao.TicketHistoryRepository;
 import com.bugtracker.SpringBootRestApp.dao.TicketRepository;
 import com.bugtracker.SpringBootRestApp.dao.UserAccountRepository;
-import com.bugtracker.SpringBootRestApp.model.Admin;
 import com.bugtracker.SpringBootRestApp.model.Developer;
 import com.bugtracker.SpringBootRestApp.model.Project;
 import com.bugtracker.SpringBootRestApp.model.ProjectManager;
-import com.bugtracker.SpringBootRestApp.model.Ticket;
 import com.bugtracker.SpringBootRestApp.dao.ProjectManagerRepository;
 import com.bugtracker.SpringBootRestApp.dao.AdminRepository;
 
@@ -43,6 +41,11 @@ public class ProjectService {
 	@Transactional
 	public List<Project> getAllProjectsForDeveloper(String username){
 		return toList(projectRepository.findByAssignedDevelopersUsername(username));
+	}
+	
+	@Transactional
+	public List<Project> getAllProjectsForProjectManager(String username){
+		return toList(projectRepository.findByProjectManagerUsername(username));
 	}
 	
 	@Transactional
