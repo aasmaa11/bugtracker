@@ -11,17 +11,22 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import jakarta.persistence.InheritanceType;
-@Data
+
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
+@Inheritance
 public abstract class UserAccount
 {
 
@@ -32,7 +37,8 @@ public abstract class UserAccount
   private String firstName;
   private String lastName;
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator="idGenerator")
+	@SequenceGenerator(name="mydb", sequenceName="idGenerator")
 	private int id;
 
   //User Associations
@@ -45,5 +51,6 @@ public abstract class UserAccount
   @OneToMany
   private Set<TicketAttachment> ticketAttachments;
 
+  
 
 }

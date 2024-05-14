@@ -45,11 +45,11 @@ public class UserController {
     
     @PostMapping(value = {"/admin/create", "/admin/create/"})
     public AdminDto createAdmin(
-            @RequestParam String username,
-            @RequestParam String email,
-            @RequestParam String password,
-            @RequestParam String firstName,
-            @RequestParam String lastName)
+            @RequestParam("username") String username,
+            @RequestParam("email") String email,
+            @RequestParam("password") String password,
+            @RequestParam("firstName") String firstName,
+            @RequestParam("lastName") String lastName)
             throws IllegalArgumentException {
     	Admin admin = userService.createAdmin(username, email, password, firstName, lastName);
         return converter.convertToDto(admin);
@@ -57,11 +57,11 @@ public class UserController {
     
     @PostMapping(value = {"/projectmanager/create", "/projectmanager/create/"})
     public ProjectManagerDto createProjectManager(
-            @RequestParam String username,
-            @RequestParam String email,
-            @RequestParam String password,
-            @RequestParam String firstName,
-            @RequestParam String lastName)
+            @RequestParam("username") String username,
+            @RequestParam("email") String email,
+            @RequestParam("password") String password,
+            @RequestParam("firstName") String firstName,
+            @RequestParam("lastName") String lastName)
             throws IllegalArgumentException {
     	ProjectManager projectManager = userService.createProjectManager(username, email, password, firstName, lastName);
         return converter.convertToDto(projectManager);
@@ -69,14 +69,17 @@ public class UserController {
     
     @PostMapping(value = {"/developer/create", "/developer/create/"})
     public DeveloperDto createDeveloper(
-            @RequestParam String username,
-            @RequestParam String email,
-            @RequestParam String password,
-            @RequestParam String firstName,
-            @RequestParam String lastName)
+            @RequestParam("username") String username,
+            @RequestParam("email") String email,
+            @RequestParam("password") String password,
+            @RequestParam("firstName") String firstName,
+            @RequestParam("lastName") String lastName)
             throws IllegalArgumentException {
     	Developer developer = userService.createDeveloper(username, email, password, firstName, lastName);
-        return converter.convertToDto(developer);
+    	DeveloperDto dev = converter.convertToDto(developer);
+    	System.out.println("DEVDTO ID");
+    	System.out.println(dev.getId());
+        return dev;
     }
     
     @GetMapping(value = {"/admin/{username}", "/project/{username}/"})
@@ -101,19 +104,34 @@ public class UserController {
                 .collect(Collectors.toList());
     }
     
-    @GetMapping(value = {"/admin/delete/{username}", "/project/delete/{username}/"})
+    @GetMapping(value = {"/developers", "/developers/"})
+    public List<DeveloperDto> getAllDevelopers() {
+        return userService.getAllDevelopers().stream()
+                .map(p -> converter.convertToDto(p))
+                .collect(Collectors.toList());
+    }
+    
+    @GetMapping(value = {"/projectmanagers", "/projectmanagers/"})
+    public List<ProjectManagerDto> getAllProjectManagers() {
+        return userService.getAllProjectManagers().stream()
+                .map(p -> converter.convertToDto(p))
+                .collect(Collectors.toList());
+    }
+    
+    
+    @PostMapping(value = {"/admin/delete/{username}", "/project/delete/{username}/"})
     public AdminDto deleteAdmin(@PathVariable("username") String username)
             throws IllegalArgumentException {
         return converter.convertToDto(userService.deleteAdmin(username));
     }
     
-    @GetMapping(value = {"/projectmanager/delete/{username}", "/projectmanager/delete/{username}/"})
+    @PostMapping(value = {"/projectmanager/delete/{username}", "/projectmanager/delete/{username}/"})
     public ProjectManagerDto deleteProjectManager(@PathVariable("username") String username)
             throws IllegalArgumentException {
         return converter.convertToDto(userService.deleteProjectManager(username));
     }
     
-    @GetMapping(value = {"/developer/delete/{username}", "/developer/delete/{username}/"})
+    @PostMapping(value = {"/developer/delete/{username}", "/developer/delete/{username}/"})
     public DeveloperDto deleteDeveloper(@PathVariable("username") String username)
             throws IllegalArgumentException {
         return converter.convertToDto(userService.deleteDeveloper(username));
@@ -129,11 +147,11 @@ public class UserController {
     @PostMapping(value = {"/user/modify/{username}", "/user/modify/{username}/"})
     public UserDto modifyUser(
     		@PathVariable("username") String username,
-            @RequestParam String newUsername,
-            @RequestParam String newEmail,
-            @RequestParam String newPassword,
-            @RequestParam String newFirstName,
-            @RequestParam String newLastName)
+            @RequestParam("newUsername") String newUsername,
+            @RequestParam("newEmail") String newEmail,
+            @RequestParam("newPassword") String newPassword,
+            @RequestParam("newFirstName") String newFirstName,
+            @RequestParam("newLastName") String newLastName)
             throws IllegalArgumentException {
     	UserAccount user = userService.modifyUser(username, newUsername, newEmail, newPassword, newFirstName, newLastName);
         return converter.convertToDto(user);
@@ -142,7 +160,7 @@ public class UserController {
     @PostMapping(value = {"/user/modifyRole/{username}", "/user/modifyRole/{username}/"})
     public UserDto changeUserRole(
     		@PathVariable("username") String username,
-            @RequestParam String userRole)
+    		@RequestParam("userRole") String userRole)
             throws IllegalArgumentException {
     	UserRole role = null;
     	if(userRole.equals("Admin")) {

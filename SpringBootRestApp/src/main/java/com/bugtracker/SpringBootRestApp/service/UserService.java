@@ -181,6 +181,8 @@ public class UserService {
 		return UserRole.Developer;	
 	}
 	
+	
+	
 	@Transactional
 	public UserAccount changeUserRole(String username, UserRole userRole) {
 		String error = "";
@@ -262,16 +264,19 @@ public class UserService {
     		String newPassword,
     		String newFirstName,
     		String newLastName) {
+
         if (!userRepository.existsByUsername(username)) {
             throw new IllegalArgumentException("UserAccount does not exist!");
         }
         UserAccount user = userRepository.findByUsername(username);
         if(newUsername != null) {
-            if (userRepository.existsByUsername(newUsername)) {
-                throw new IllegalArgumentException("Username already exists");
-            }else {
-            	user.setUsername(newUsername);;
-            }  
+        	if(!username.equals(newUsername)) {
+                if (userRepository.existsByUsername(newUsername)) {
+                    throw new IllegalArgumentException("Username already exists");
+                }else {
+                	user.setUsername(newUsername);;
+                }  
+        	}
         }
         if(newEmail != null) {
         	user.setEmail(newEmail);        
@@ -337,6 +342,18 @@ public class UserService {
 	@Transactional
 	public List<UserAccount> getAllUsers() {
 		return toList(userRepository.findAll());
+	}
+	
+	
+
+	@Transactional
+	public List<Developer> getAllDevelopers() {
+		return toList(developerRepository.findAll());
+	}
+	
+	@Transactional
+	public List<ProjectManager> getAllProjectManagers() {
+		return toList(projectManagerRepository.findAll());
 	}
 	
     private <T> List<T> toList(Iterable<T> iterable) {

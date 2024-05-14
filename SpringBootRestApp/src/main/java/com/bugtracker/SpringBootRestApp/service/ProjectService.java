@@ -18,6 +18,7 @@ import com.bugtracker.SpringBootRestApp.dao.UserAccountRepository;
 import com.bugtracker.SpringBootRestApp.model.Developer;
 import com.bugtracker.SpringBootRestApp.model.Project;
 import com.bugtracker.SpringBootRestApp.model.ProjectManager;
+import com.bugtracker.SpringBootRestApp.model.Ticket;
 import com.bugtracker.SpringBootRestApp.dao.ProjectManagerRepository;
 import com.bugtracker.SpringBootRestApp.dao.AdminRepository;
 
@@ -55,7 +56,8 @@ public class ProjectService {
 	
 	@Transactional
 	public Project getProjectForTicket(int id) {
-		return projectRepository.findByTicketsId(id);
+		Ticket ticket = ticketRepository.findById(id);
+		return ticket.getProject();
 	}
 	
 	@Transactional
@@ -84,6 +86,7 @@ public class ProjectService {
     	Project project = new Project();
 		project.setName(name);	
 		project.setDescription(description);
+		
 		project.setProjectManager(projectManager);
 		project.setAssignedDevelopers(assignedDevelopers);
 		projectRepository.save(project);
@@ -100,7 +103,8 @@ public class ProjectService {
         if (error.length() > 0) {
             throw new IllegalArgumentException(error);
         }
-        ProjectManager projectManager = projectManagerRepository.findByProjectsId(projectId);
+        
+        ProjectManager projectManager = projectRepository.findById(projectId).getProjectManager();
         
 		return projectManager;
         
@@ -108,7 +112,10 @@ public class ProjectService {
 
 	@Transactional
 	public List<Developer> getAllAssignedDevelopersForProject(int projectId){
-		return toList(developerRepository.findByProjectsId(projectId));
+
+        
+		List<Developer> developers = toList(projectRepository.findById(projectId).getAssignedDevelopers()); 
+		return developers;
 	}
 	
 	@Transactional
@@ -167,14 +174,80 @@ public class ProjectService {
         	project.setAssignedDevelopers(developers);
         	
         }else {
-        	project.getAssignedDevelopers().add(developer);
+        	Set<Developer> developers = project.getAssignedDevelopers();
+        	developers.add(developer);
+        	project.setAssignedDevelopers(developers);
         }
-        
- 
         projectRepository.save(project);
         return project;
 	}
 	
+	@Transactional
+	public Project setDevelopersToProject(
+			Integer projectId,
+			List<String> usernames) {
+        if (!projectRepository.existsById(projectId)) {
+            throw new IllegalArgumentException("Project does not exist!");
+        }
+        Project project = projectRepository.findById(projectId);
+        Set<Developer> developers = new HashSet<Developer>();
+        for (String username: usernames) {
+	        if (!developerRepository.existsByUsername(username)) {
+	            throw new IllegalArgumentException("Developer does not exist!");
+	        }
+	        Developer developer = developerRepository.findByUsername(username);
+	        developers.add(developer);
+        }
+        project.setAssignedDevelopers(developers);
+        projectRepository.save(project);
+        return project;
+	}
+	
+	
+	@Transactional
+	public Project addDevelopersToProject(
+			Integer projectId,
+			List<String> usernames) {
+        if (!projectRepository.existsById(projectId)) {
+            throw new IllegalArgumentException("Project does not exist!");
+        }
+        System.out.println("Adding devs to project");
+        Project project = projectRepository.findById(projectId);
+        int i = 0;
+        System.out.println(	"Checking if they are equals");
+        System.out.println(developerRepository.findByUsername(usernames.get(0))
+        		.equals(developerRepository.findByUsername(usernames.get(1))));
+        
+        for (String username: usernames) {
+        	
+        	
+	        if (!developerRepository.existsByUsername(username)) {
+	            throw new IllegalArgumentException("Developer does not exist!");
+	        }
+	        Developer developer = developerRepository.findByUsername(username);
+	        System.out.println(developer.getUsername());
+	        if(project.getAssignedDevelopers() == null) {
+	        	Set<Developer> developers = new HashSet<Developer>();
+	        	developers.add(developer);
+	        	project.setAssignedDevelopers(developers);
+	        	
+	        }else {
+	        	Set<Developer> developers = project.getAssignedDevelopers();
+	        	System.out.println(	"devs already assigned");
+	        	
+	        	
+	       		for(Developer d: developers) {
+	        		System.out.println(d.getUsername());
+	        	}
+	       		System.out.println(	"end of small loop");
+	        	System.out.println(developers.add(developer));
+	        	project.setAssignedDevelopers(developers);
+	        }
+	        i++;
+        }
+        projectRepository.save(project);
+        return project;
+	}
 	
     @Transactional
     public Project deleteProject(int id) {
@@ -184,6 +257,19 @@ public class ProjectService {
         
         Project project = projectRepository.findById(id);
         projectRepository.delete(project);
+        return project;
+    }
+    
+    @Transactional
+    public Project deleteTicketsForProject(int id) {
+        if (!projectRepository.existsById(id)) {
+            throw new IllegalArgumentException("Project does not exist!");
+        }
+        List<Ticket> tickets = ticketRepository.findByProjectId(id);
+        for(Ticket ticket: tickets) {
+        	ticketRepository.delete(ticket);
+        }
+        Project project = projectRepository.findById(id);
         return project;
     }
 	

@@ -1,6 +1,8 @@
 package com.bugtracker.SpringBootRestApp.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -39,33 +41,39 @@ public class TicketService {
 	
 	@Transactional
 	public Ticket getTicketForTicketHistory(int id) {
-		return ticketRepository.findByTicketHistoriesId(id);
+		TicketHistory ticketHistory = ticketHistoryRepository.findById(id);
+		return ticketHistory.getTicket();
 	}
 
 	
 	@Transactional
 	public UserAccount getSubmitterForTicket(int id) {
-		return userRepository.findByCreatedTicketsId(id);
+		Ticket ticket = ticketRepository.findById(id);
+		return ticket.getSubmitter();
 	}
 	
 	@Transactional
 	public Ticket getTicketOfComment(int commentId) {
-		return ticketRepository.findByCommentsId(commentId);
+		Comment comment = commentRepository.findById(commentId);
+		return comment.getTicket();
 	}
 	
 	@Transactional
 	public Ticket getTicketForTicketAttachment(int id) {
-		return ticketRepository.findByTicketAttachmentsId(id);
+		TicketAttachment ticketAttachment = ticketAttachmentRepository.findById(id);
+		return ticketAttachment.getTicket();
 	}
 	
 	@Transactional
 	public UserAccount getCommenterForComment(int commentId) {
-		return userRepository.findByCommentsId(commentId);
+		Comment comment = commentRepository.findById(commentId);
+		return comment.getCommenter();
 	}
 	
 	@Transactional
 	public UserAccount getCreatorForTicketAttachment(int id) {
-		return userRepository.findByTicketAttachmentsId(id);
+		TicketAttachment ticketAttachment = ticketAttachmentRepository.findById(id);
+		return ticketAttachment.getCreator();
 	}
 	
 	@Transactional
@@ -90,12 +98,14 @@ public class TicketService {
 	
 	@Transactional
 	public List<Ticket> getAllTicketsForDeveloper(int developerId) {
-		return toList(ticketRepository.findByAssignedDevelopersId(developerId));
+		Developer developer = developerRepository.findById(developerId);
+		return toList(developer.getAssignedTickets());
 	}
 	
 	@Transactional
 	public List<Developer> getAllDevelopersForTicket(int ticketId) {
-		return toList(developerRepository.findByAssignedTicketsId(ticketId));
+		Ticket ticket = ticketRepository.findById(ticketId);
+		return toList(ticket.getAssignedDevelopers());
 	}
 	
 	@Transactional
@@ -105,7 +115,8 @@ public class TicketService {
 	
 	@Transactional
 	public List<Ticket> getAllTicketsForSubmitter(int submitterId) {
-		return toList(ticketRepository.findBySubmitterId(submitterId));
+		UserAccount submitter = userRepository.findById(submitterId);
+		return toList(submitter.getCreatedTickets());
 	}
 	
 	@Transactional
@@ -116,33 +127,46 @@ public class TicketService {
 	
 	@Transactional
 	public List<Ticket> getAllTicketsForProject(int projectId){
-		return toList(ticketRepository.findByProjectId(projectId));
+		return ticketRepository.findByProjectId(projectId);
 	}
 	
 	@Transactional
 	public List<TicketAttachment> getAllTicketAttachmentForTicket(int ticketId){
-		return toList(ticketAttachmentRepository.findByTicketId(ticketId));
+		Ticket ticket = ticketRepository.findById(ticketId);
+		return toList(ticket.getTicketAttachments());
 	}
 	
 	@Transactional
 	public List<TicketAttachment> getAllTicketAttachmentForUser(String username){
-		return toList(ticketAttachmentRepository.findByCreatorUsername(username));
+		UserAccount user = userRepository.findByUsername(username);
+		return toList(user.getTicketAttachments());
 	}
 	
 	
 	@Transactional
 	public List<TicketHistory> getAllTicketHistoryForTicket(int ticketId){
-		return toList(ticketHistoryRepository.findByTicketId(ticketId));
+		Ticket ticket = ticketRepository.findById(ticketId);
+		return toList(ticket.getTicketHistories());
 	}
 	
 	@Transactional
 	public List<Comment> getAllCommentForTicket(int ticketId){
-		return toList(commentRepository.findByTicketId(ticketId));
+		Ticket ticket = ticketRepository.findById(ticketId);
+		List<Comment> comments = toList(ticket.getComments());
+		
+		// Sort comments by creation date
+		Collections.sort(comments, new Comparator<Comment>() {
+			  public int compare(Comment c1, Comment c2) {
+			      return c2.getCreationDate().compareTo(c1.getCreationDate());
+			  }
+			});
+		return comments;
 	}
 	
 	@Transactional
 	public List<Comment> getAllCommentForUser(String username){
-		return toList(commentRepository.findByCommenterUsername(username));
+		UserAccount user = userRepository.findByUsername(username);
+		return toList(user.getComments());
 	}
 	
 	@Transactional 
@@ -193,11 +217,35 @@ public class TicketService {
 		ticket.setComments(comments);
 		Project project = projectRepository.findById(projectId);
 		ticket.setProject(project);
+		System.out.println("CHECK PROJECT ");
+		System.out.println(project.getProjectManager().getFirstName());
 		UserAccount submitter = userRepository.findByUsername(submitterUsername);
 		ticket.setSubmitter(submitter);
 		
 		ticketRepository.save(ticket);
 		return ticket;
+	}
+	
+	@Transactional
+	public Ticket setProject(
+			Integer id,
+			Integer projectId) {
+        if (!ticketRepository.existsById(id)) {
+            throw new IllegalArgumentException("Ticket does not exist!");
+        }
+        if (!projectRepository.existsById(projectId)) {
+            throw new IllegalArgumentException("Project does not exist!");
+        }
+        Ticket ticket = ticketRepository.findById(id);
+        Project project = projectRepository.findById(projectId);
+        
+        if(!(ticket.getProject().getId() == projectId)) {
+        	
+        	addTicketHistory(id, "project", ticket.getProject().getName(), project.getName());
+        	ticket.setProject(project);
+        }
+        ticketRepository.save(ticket);
+        return ticket;
 	}
 	
 	@Transactional 
@@ -435,6 +483,27 @@ public class TicketService {
         return ticket;
     	
     }
+    
+	@Transactional
+	public Ticket setAssignedDevelopers(
+			Integer ticketId,
+			List<String> usernames) {
+        if (!ticketRepository.existsById(ticketId)) {
+            throw new IllegalArgumentException("Ticket does not exist!");
+        }
+        Ticket ticket = ticketRepository.findById(ticketId);
+        Set<Developer> developers = new HashSet<Developer>();
+        for (String username: usernames) {
+	        if (!developerRepository.existsByUsername(username)) {
+	            throw new IllegalArgumentException("Developer does not exist!");
+	        }
+	        Developer developer = developerRepository.findByUsername(username);
+	        developers.add(developer);
+        }
+        ticket.setAssignedDevelopers(developers);
+        ticketRepository.save(ticket);
+        return ticket;
+	}
     
 	@Transactional
 	public Comment modifyComment(

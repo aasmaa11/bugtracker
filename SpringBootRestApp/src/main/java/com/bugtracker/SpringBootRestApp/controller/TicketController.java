@@ -3,6 +3,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.bugtracker.SpringBootRestApp.controller.DtoConverterToLoad.Loads;
 import com.bugtracker.SpringBootRestApp.dto.*;
 import com.bugtracker.SpringBootRestApp.model.*;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -42,14 +43,24 @@ public class TicketController {
      * 
      * */
     
+    
+    private DtoConverterToLoad ticketLoads =
+            new DtoConverterToLoad()
+            		.put(Loads.TicketAttachments, null)
+            		.put(Loads.TicketHistories, null)
+            		.put(Loads.Comments, new DtoConverterToLoad().put(Loads.Commenter, null))
+            		.put(Loads.Project, null)
+                    .put(Loads.Submitter, null)
+                    .put(Loads.AssignedDevelopers, null);
+    
     @PostMapping(value = {"/ticket/createComment/{id}", "/ticket/createComment/{id}/"})
     public TicketDto addCommentToTicket(
     		@PathVariable("id") String id,
-            @RequestParam String commenterUsername,
-            @RequestParam String message)
+            @RequestParam("commenterUsername") String commenterUsername,
+            @RequestParam("message") String message)
             throws IllegalArgumentException {
     	Ticket ticket = ticketService.createComment(message, Integer.parseInt(id), commenterUsername);
-        return converter.convertToDto(ticket);
+        return converter.convertToDto(ticket, ticketLoads);
     }
     
     @PostMapping(value = {"/ticket/createTa/{id}", "/ticket/createTa/{id}/"})
@@ -60,7 +71,7 @@ public class TicketController {
             @RequestParam String notes)
             throws IllegalArgumentException {
     	Ticket ticket = ticketService.addTicketAttachment(Integer.parseInt(id), file, notes, creatorUsername);
-        return converter.convertToDto(ticket);
+        return converter.convertToDto(ticket, ticketLoads);
     }
     
     @PostMapping(value = {"/ticket/createHistory/{id}", "/ticket/createHistory/{id}/"})
@@ -71,7 +82,7 @@ public class TicketController {
             @RequestParam String newValue)
             throws IllegalArgumentException {
     	Ticket ticket = ticketService.addTicketHistory(Integer.parseInt(id), propertyChanged, oldValue, newValue);
-        return converter.convertToDto(ticket);
+        return converter.convertToDto(ticket, ticketLoads);
     }
     
     @PostMapping(value = {"/ticket/assignDev/{username}", "/ticket/assignDev/{username}/"})
@@ -80,7 +91,27 @@ public class TicketController {
             @RequestParam int ticketId)
             throws IllegalArgumentException {
     	Ticket ticket = ticketService.addAssignedDeveloper(ticketId, username);
-        return converter.convertToDto(ticket);
+        return converter.convertToDto(ticket, ticketLoads);
+    }
+    
+    @PostMapping(value = {"/ticket/assignDevs/{ticketId}", "/ticket/assignDev/{ticketId}/"})
+    public TicketDto setAssignedDevelopersToTicket(
+    		@PathVariable("ticketId") String ticketId,
+    		@RequestParam("devUsernames") List<String> devUsernames)
+            throws IllegalArgumentException {
+    	Ticket ticket = ticketService.setAssignedDevelopers(Integer.parseInt(ticketId), devUsernames);
+        return converter.convertToDto(ticket, ticketLoads);
+    }
+    
+    
+    @PostMapping(value = {"/ticket/project/{ticketId}", "/ticket/project/{ticketId}/"})
+    public TicketDto setProjectToTicket(
+    		@PathVariable("ticketId") String ticketId,
+    		@RequestParam("projectId") String projectId)
+            throws IllegalArgumentException {
+    	Ticket ticket = ticketService.setProject(Integer.parseInt(ticketId),Integer.parseInt(projectId));
+    	
+        return converter.convertToDto(ticket, ticketLoads);
     }
     
     @PostMapping(value = {"/ticket/delete/{id}", "/ticket/delete/{id}/"})
@@ -92,80 +123,80 @@ public class TicketController {
     @PostMapping(value = {"/comment/delete/{id}", "/comment/delete/{id}/"})
     public CommentDto deleteComment(@PathVariable("id") String id)
             throws IllegalArgumentException {
-        return converter.convertToDto(ticketService.deleteComment(Integer.parseInt(id)));
+        return converter.convertToDto(ticketService.deleteComment(Integer.parseInt(id)), ticketLoads);
     }
     
     @PostMapping(value = {"/ticketattachment/delete/{id}", "/ticketattachment/delete/{id}/"})
     public TicketAttachmentDto deleteTicketAttachment(@PathVariable("id") String id)
             throws IllegalArgumentException {
-        return converter.convertToDto(ticketService.deleteTicketAttachment(Integer.parseInt(id)));
+        return converter.convertToDto(ticketService.deleteTicketAttachment(Integer.parseInt(id)), ticketLoads);
     }
     
     @GetMapping(value = {"/ticket/{id}", "/ticket/{id}/"})
-    public TicketDto getProject(@PathVariable("id") String id) {
-        return converter.convertToDto(ticketService.getTicket(Integer.parseInt(id)));
+    public TicketDto getTicket(@PathVariable("id") String id) {
+        return converter.convertToDto(ticketService.getTicket(Integer.parseInt(id)), ticketLoads);
     }
    
     
     @GetMapping(value = {"/ticket/attachments/{id}", "/ticket/attachments/{id}/"})
     public List<TicketAttachmentDto> getAllTicketAttachmentForTicket(@PathVariable("id") String id) {
         return ticketService.getAllTicketAttachmentForTicket(Integer.parseInt(id)).stream()
-                .map(p -> converter.convertToDto(p))
+                .map(p -> converter.convertToDto(p, ticketLoads))
                 .collect(Collectors.toList());
     }
     
     @GetMapping(value = {"/ticket/history/{id}", "/ticket/history/{id}/"})
     public List<TicketHistoryDto> getAllTicketHistoryForTicket(@PathVariable("id") String id) {
         return ticketService.getAllTicketHistoryForTicket(Integer.parseInt(id)).stream()
-                .map(p -> converter.convertToDto(p))
+                .map(p -> converter.convertToDto(p, ticketLoads))
                 .collect(Collectors.toList());
     }
     
     @GetMapping(value = {"/ticket/comments/{id}", "/ticket/comments/{id}/"})
     public List<CommentDto> getAllCommentForTicket(@PathVariable("id") String id) {
         return ticketService.getAllCommentForTicket(Integer.parseInt(id)).stream()
-                .map(p -> converter.convertToDto(p))
+                .map(p -> converter.convertToDto(p, ticketLoads))
                 .collect(Collectors.toList());
     }
     
     @GetMapping(value = {"/project/tickets/{id}", "/project/tickets/{id}/"})
     public List<TicketDto> getAllTicketsForProject(@PathVariable("id") String id) {
         return ticketService.getAllTicketsForProject(Integer.parseInt(id)).stream()
-                .map(p -> converter.convertToDto(p))
+                .map(p -> converter.convertToDto(p, ticketLoads))
                 .collect(Collectors.toList());
     }
     
     @GetMapping(value = {"/developer/tickets/{username}", "/developer/tickets/{username}/"})
     public List<TicketDto> getAllTicketsForDeveloperWithUsername(@PathVariable("username") String username) {
         return ticketService.getAllTicketsForDeveloperWithUsername(username).stream()
-                .map(p -> converter.convertToDto(p))
+                .map(p -> converter.convertToDto(p, ticketLoads))
                 .collect(Collectors.toList());
     }
     
     @GetMapping(value = {"/user/tickets/{username}", "/user/tickets/{username}/"})
     public List<TicketDto> getAllTicketsForSubmitterWithUsername(@PathVariable("username") String username) {
         return ticketService.getAllTicketsForSubmitterWithUsername(username).stream()
-                .map(p -> converter.convertToDto(p))
+                .map(p -> converter.convertToDto(p, ticketLoads))
                 .collect(Collectors.toList());
     }
     
     @GetMapping(value = {"/ticket/developers/{id}", "/ticket/developers/{id}/"})
     public List<DeveloperDto> getAllDevelopersForTicket(@PathVariable("id") String id) {
         return ticketService.getAllDevelopersForTicket(Integer.parseInt(id)).stream()
-                .map(p -> converter.convertToDto(p))
+                .map(p -> converter.convertToDto(p, ticketLoads))
                 .collect(Collectors.toList());
     }
     
     
     @PostMapping(value = {"/ticket/create", "/ticket/create/"})
     public TicketDto createTicket(
-            @RequestParam String title,
-            @RequestParam String description,
-            @RequestParam String priority,
-            @RequestParam String status,
-            @RequestParam String type,
-            @RequestParam Integer projectId,
-            @RequestParam String submitterUsername)
+            @RequestParam("title") String title,
+            @RequestParam("description") String description,
+            @RequestParam("priority") String priority,
+            @RequestParam("status") String status,
+            @RequestParam("type") String type,
+            @RequestParam("projectId") String projectId,
+            @RequestParam("submitterUsername") String submitterUsername)
             throws IllegalArgumentException {
     	Ticket.TicketPriority ticketPriority = null;
     	
@@ -202,19 +233,22 @@ public class TicketController {
     		ticketType = Ticket.TicketType.Other;
     	}
     	
-    	Ticket ticket = ticketService.createTicket(title, description, ticketPriority, ticketStatus, ticketType, null, null, null, projectId, submitterUsername);
-        
-        return converter.convertToDto(ticket);
+    	Ticket ticket = ticketService.createTicket(title, description, ticketPriority, ticketStatus, ticketType, null, null, null, Integer.parseInt(projectId), submitterUsername);
+
+        TicketDto ticketDto = converter.convertToDto(ticket, ticketLoads);
+    	System.out.println("CHECK DTO INFOOOO");
+        System.out.println(ticketDto.getProject().getProjectManager());
+        return ticketDto;
     }
     
     @PostMapping(value = {"/ticket/modify/{id}", "/ticket/modify/{id}/"})
     public TicketDto modifyTicket(
     		@PathVariable("id") String id,
-            @RequestParam String title,
-            @RequestParam String description,
-            @RequestParam String priority,
-            @RequestParam String status,
-            @RequestParam String type)
+            @RequestParam("title") String title,
+            @RequestParam("description") String description,
+            @RequestParam("priority") String priority,
+            @RequestParam("status") String status,
+            @RequestParam("type") String type)
             throws IllegalArgumentException {
     	Ticket.TicketPriority ticketPriority = null;
     	
@@ -253,6 +287,6 @@ public class TicketController {
     	
     	Ticket ticket = ticketService.modifyTicket(Integer.parseInt(id), title, description, ticketPriority, ticketStatus, ticketType);
         
-        return converter.convertToDto(ticket);
+        return converter.convertToDto(ticket, ticketLoads);
     }
 }

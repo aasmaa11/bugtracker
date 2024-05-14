@@ -7,6 +7,7 @@ import java.util.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -17,9 +18,12 @@ import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -45,13 +49,13 @@ public class Ticket
   private String updateDate;
 
   //Ticket Associations
-  @OneToMany
+  @OneToMany(cascade = CascadeType.ALL)
   private Set<TicketAttachment> ticketAttachments;
-  @OneToMany
+  @OneToMany(cascade = CascadeType.ALL)
   private Set<TicketHistory> ticketHistories;
   @ManyToMany
   private Set<Developer> assignedDevelopers;
-  @OneToMany
+  @OneToMany(cascade = CascadeType.ALL)
   private Set<Comment> comments;
   @ManyToOne
   private Project project;

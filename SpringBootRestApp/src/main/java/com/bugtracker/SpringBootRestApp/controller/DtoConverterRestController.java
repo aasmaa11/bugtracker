@@ -42,7 +42,8 @@ public class DtoConverterRestController {
 		adminDto.setPassword(a.getPassword());
 		adminDto.setFirstName(a.getFirstName());
 		adminDto.setLastName(a.getLastName());
-
+		adminDto.setId(a.getId());
+		
 		if (toLoad != null) {
 			if (toLoad.has(Loads.Comments)) {
 				List<Comment> comments = ticketService.getAllCommentForUser(a.getUsername());
@@ -99,7 +100,7 @@ public class DtoConverterRestController {
 		developerDto.setPassword(d.getPassword());
 		developerDto.setFirstName(d.getFirstName());
 		developerDto.setLastName(d.getLastName());
-
+		developerDto.setId(d.getId());
 		if (toLoad != null) {
 			if (toLoad.has(Loads.Comments)) {
 				List<Comment> comments = ticketService.getAllCommentForUser(d.getUsername());
@@ -137,10 +138,12 @@ public class DtoConverterRestController {
 		ProjectDto projectDto = new ProjectDto(p.getId(), p.getName(), p.getDescription(), null, null, null);
 		if (toLoad != null) {
 			if (toLoad.has(Loads.ProjectManager)) {
+				System.out.println("SETTING PM OF DTO");
 				ProjectManager projectManager = projectService.getProjectManagerForProject(p.getId());
 				projectDto.setProjectManager(convertToDto(projectManager, toLoad.get(Loads.ProjectManager)));
 			}
 			if (toLoad.has(Loads.AssignedDevelopers)) {
+				System.out.println("SETTING ASSIGNED DEVS OF DTO");
 				List<Developer> developers = projectService.getAllAssignedDevelopersForProject(p.getId());
 				projectDto.setAssignedDevelopers(convertToDto(developers, toLoad.get(Loads.AssignedDevelopers)));
 		
@@ -168,6 +171,7 @@ public class DtoConverterRestController {
 		projectManager.setPassword(p.getPassword());
 		projectManager.setFirstName(p.getFirstName());
 		projectManager.setLastName(p.getLastName());
+		projectManager.setId(p.getId());
 
 		if (toLoad != null) {
 			if (toLoad.has(Loads.Comments)) {
@@ -251,6 +255,8 @@ public class DtoConverterRestController {
 			}
 			if (toLoad.has(Loads.Project)) {
 				Project project = projectService.getProjectForTicket(t.getId());	
+				System.out.println("CHECK IN CONVERTER");
+				System.out.println(project.getProjectManager());
 				ticketDto.setProject(convertToDto(project, toLoad.get(Loads.Project)));
 			}
 			if (toLoad.has(Loads.Submitter)) {

@@ -3,6 +3,7 @@ package com.bugtracker.SpringBootRestApp.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.bugtracker.SpringBootRestApp.controller.DtoConverterToLoad.Loads;
 import com.bugtracker.SpringBootRestApp.dto.*;
 import com.bugtracker.SpringBootRestApp.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,16 +36,22 @@ public class ProjectController {
      * 
      * */
     
+    
+    private DtoConverterToLoad projectLoads =
+            new DtoConverterToLoad()
+                    .put(Loads.ProjectManager, null)
+                    .put(Loads.AssignedDevelopers, null);
+    
     @GetMapping(value = {"/projects", "/projects/"})
     public List<ProjectDto> getAllProjects() {
         return projectService.getAllProjects().stream()
-                .map(p -> converter.convertToDto(p))
+                .map(p -> converter.convertToDto(p, projectLoads))
                 .collect(Collectors.toList());
     }
     
     @GetMapping(value = {"/project/{id}", "/project/{id}/"})
     public ProjectDto getProject(@PathVariable("id") String id) {
-        return converter.convertToDto(projectService.getProject(Integer.parseInt(id)));
+        return converter.convertToDto(projectService.getProject(Integer.parseInt(id)), projectLoads);
     }
     
     @GetMapping(value = {"/developer/projects/{username}", "/developer/projects/{username}"})
@@ -64,19 +71,19 @@ public class ProjectController {
     
     @PostMapping(value = {"/project/create", "/project/create/"})
     public ProjectDto createProject(
-            @RequestParam String name,
-            @RequestParam String description,
-            @RequestParam String projectManagerUsername)
+            @RequestParam("name") String name,
+            @RequestParam("description") String description,
+            @RequestParam("projectManagerUsername") String projectManagerUsername)
             throws IllegalArgumentException {
         Project project = projectService.createProject(name, description, projectManagerUsername, null);
-        return converter.convertToDto(project);
+        return converter.convertToDto(project, projectLoads);
     }
     
     @PostMapping(value = {"/project/modify", "/project/modify/"})
     public ProjectDto modifyProject(
-    		@RequestParam int projectId,
-            @RequestParam String name,
-            @RequestParam String description)
+    		@RequestParam("projectId") int projectId,
+            @RequestParam("name") String name,
+            @RequestParam("description") String description)
             throws IllegalArgumentException {
     	Project project = projectService.modifyProject(projectId, name, description);
         return converter.convertToDto(project);
@@ -85,16 +92,27 @@ public class ProjectController {
     @PostMapping(value = {"/project/addDev/{username}", "/project/addDev/{username}/"})
     public ProjectDto addDeveloperToProject(
     		@PathVariable("username") String username,
-            @RequestParam int projectId)
+            @RequestParam("projectId") int projectId)
             throws IllegalArgumentException {
     	Project project = projectService.addDeveloperToProject(projectId, username);
-        return converter.convertToDto(project);
+        return converter.convertToDto(project, projectLoads);
+    }
+    
+    @PostMapping(value = {"/project/setDevs/{id}", "/project/addDevs/{id}/"})
+    public ProjectDto setDevelopersToProject(
+    		@PathVariable("id") String id,
+            @RequestParam("devUsernames") List<String> devUsernames)
+            throws IllegalArgumentException {
+    	Project project = null;
+    	project = projectService.setDevelopersToProject(Integer.parseInt(id), devUsernames);
+    	
+        return converter.convertToDto(project, projectLoads);
     }
     
     @PostMapping(value = {"/project/assignPm/{username}", "/project/assignPm/{username}/"})
     public ProjectDto assignProjectManagerToProject(
     		@PathVariable("username") String username,
-            @RequestParam int projectId)
+            @RequestParam("projectId") int projectId)
             throws IllegalArgumentException {
     	Project project = projectService.assignProjectManagerToProject(projectId, username);
         return converter.convertToDto(project);
@@ -103,6 +121,9 @@ public class ProjectController {
     @PostMapping(value = {"/project/delete/{id}", "/project/delete/{id}/"})
     public ProjectDto deleteProject(@PathVariable("id") String id)
             throws IllegalArgumentException {
+    	
+    	// delete all tickets assigned to project
+    	projectService.deleteTicketsForProject(Integer.parseInt(id));
         return converter.convertToDto(projectService.deleteProject(Integer.parseInt(id)));
     }
 }
