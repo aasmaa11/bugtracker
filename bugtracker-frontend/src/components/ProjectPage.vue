@@ -20,6 +20,14 @@
         </div>
         <div class="modal-body">
           <form class="row g-3">
+            <span v-if="errorModifyTicket != ''">{{ errorModifyTicket }}</span>
+            <span v-if="errorAssignDevsToTicketInModify != ''">{{
+              errorAssignDevsToTicketInModify
+            }}</span>
+            <span v-if="errorAssignProjectToTicketInModify != ''">{{
+              errorAssignProjectToTicketInModify
+            }}</span>
+
             <div class="col-md-12">
               <label for="title" class="form-label">Title</label>
               <input class="form-control" v-model="newTitle" id="title1" />
@@ -79,7 +87,9 @@
             <div class="col-md-4">
               <label for="status" class="form-label">Status</label>
               <select id="status1" v-model="newStatus" class="form-select">
-                <option v-for="s in statusChoices" :key="s.id">{{ s }}</option>
+                <option v-for="s in statusChoices" :key="s.id">
+                  {{ s }}
+                </option>
               </select>
             </div>
           </form>
@@ -136,15 +146,19 @@
         </div>
         <div class="modal-body">
           <form class="row g-3">
+            <span v-if="errorCreateTicket != ''">{{ errorCreateTicket }}</span>
+            <span v-if="errorAssignDevsToTicket != ''">{{
+              errorAssignDevsToTicket
+            }}</span>
             <div class="col-md-12">
               <label for="title1" class="form-label">Title</label>
-              <input class="form-control" v-model="title" id="title1" />
+              <input class="form-control" v-model="ticketTitle" id="title1" />
             </div>
             <div class="col-md-12">
               <label for="description1" class="form-label">Description</label>
               <input
                 class="form-control"
-                v-model="description"
+                v-model="ticketDescription"
                 id="description1"
               />
             </div>
@@ -167,7 +181,11 @@
             </div>
             <div class="col-md-4">
               <label for="priority1" class="form-label">Priority</label>
-              <select id="priority1" v-model="priority" class="form-select">
+              <select
+                id="priority1"
+                v-model="ticketPriority"
+                class="form-select"
+              >
                 <option :value="null" disabled>Choose...</option>
                 <option v-for="p in priorityChoices" :key="p.id">
                   {{ p }}
@@ -176,14 +194,14 @@
             </div>
             <div class="col-md-4">
               <label for="type1" class="form-label">Type</label>
-              <select id="type1" v-model="type" class="form-select">
+              <select id="type1" v-model="ticketType" class="form-select">
                 <option :value="null" disabled>Choose...</option>
                 <option v-for="t in typeChoices" :key="t.id">{{ t }}</option>
               </select>
             </div>
             <div class="col-md-4">
               <label for="status1" class="form-label">Status</label>
-              <select id="status1" v-model="status" class="form-select">
+              <select id="status1" v-model="ticketStatus" class="form-select">
                 <option :value="null" disabled>Choose...</option>
                 <option v-for="s in statusChoices" :key="s.id">{{ s }}</option>
               </select>
@@ -204,11 +222,11 @@
             class="btn btn-primary"
             v-on:click="
               createTicket(
-                title,
-                description,
-                priority,
-                status,
-                type,
+                ticketTitle,
+                ticketDescription,
+                ticketPriority,
+                ticketStatus,
+                ticketType,
                 selectedProjectId,
                 ticketDevs
               )
@@ -242,6 +260,10 @@
           </div>
           <div class="modal-body">
             <form class="row g-3">
+              <span v-if="errorCreateProject != ''">{{
+                errorCreateProject
+              }}</span>
+              <span v-if="errorSetDevs != ''">{{ errorSetDevs }}</span>
               <div class="col-md-12">
                 <label for="inputEmail4" class="form-label">Title</label>
                 <input
@@ -327,416 +349,497 @@
         </div>
       </div>
     </div>
-
-    <div class="tables">
-      <div class="row g-100">
-        <div class="col">
-          <div class="table-responsive">
-            <DataTable
-              :columns="columns"
-              :data="data"
-              class="table caption-top"
-              width="100%"
-              :options="{ pageLength: 5, lengthChange: false, select: true }"
-              ref="table"
-              @select="clickRow()"
-            >
-              <caption>
-                Assigned projects
-              </caption>
-              <thead class="table-light">
-                <tr>
-                  <th scope="col">Title</th>
-                  <th scope="col">Description</th>
-                  <th scope="col">Project Manager</th>
-                </tr>
-              </thead>
-            </DataTable>
-          </div>
-          <button type="button" class="btn btn-primary">
-            <a href="#" data-bs-toggle="modal" data-bs-target="#exampleModal2"
-              >New project</a
-            >
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="outer-container">
-      <ul class="nav nav-tabs" id="myTab" role="tablist">
-        <li class="nav-item" role="presentation">
-          <button
-            class="nav-link active"
-            id="home-tab"
-            data-bs-toggle="tab"
-            data-bs-target="#home"
-            type="button"
-            role="tab"
-            aria-controls="home"
-            aria-selected="true"
-          >
-            Project information
-          </button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button
-            class="nav-link"
-            id="profile-tab"
-            data-bs-toggle="tab"
-            data-bs-target="#profile"
-            type="button"
-            role="tab"
-            aria-controls="profile"
-            aria-selected="false"
-          >
-            Tickets
-          </button>
-        </li>
-      </ul>
-      <div class="tab-content" id="myTabContent">
-        <div
-          class="tab-pane fade show active"
-          id="home"
-          role="tabpanel"
-          aria-labelledby="home-tab"
-        >
-          <div class="text-container">Edit project information</div>
-          <div class="form-container">
-            <form class="row g-3">
-              <div class="col-md-6">
-                <label for="inputEmail4" class="form-label">TITLE</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  v-model="selectedName"
-                  id="selectedName"
-                />
-              </div>
-              <div class="col-md-6">
-                <label for="inputPassword4" class="form-label"
-                  >DESCRIPTION</label
-                >
-                <input
-                  type="text"
-                  class="form-control"
-                  v-model="selectedDescription"
-                  id="selectedDescription"
-                />
-              </div>
-              <div class="col-md-6">
-                <label for="inputState" class="form-label"
-                  >PROJECT MANAGER</label
-                >
-                <select
-                  id="inputState"
-                  v-model="selectedPm.username"
-                  class="form-select"
-                >
-                  <option
-                    v-for="pm in projectManagers"
-                    :key="pm.id"
-                    v-bind:value="pm.username"
-                  >
-                    {{ pm.firstName }} {{ pm.lastName }}
-                  </option>
-                </select>
-              </div>
-              <div class="col-md-6">
-                <label for="inputAddress" class="form-label"
-                  >ASSIGNED DEVELOPERS</label
-                >
-                <select
-                  class="form-select"
-                  v-model="selectedDevs"
-                  multiple
-                  aria-label="multiple select example"
-                >
-                  <option
-                    v-for="dev in developers"
-                    :key="dev.id"
-                    v-bind:value="dev.username"
-                  >
-                    {{ dev.firstName }} {{ dev.lastName }}
-                  </option>
-                </select>
-              </div>
-
-              <div class="col-md-10">
-                <button
-                  type="submit"
-                  v-on:click="
-                    modifyProject(
-                      this.selectedProjectId,
-                      selectedName,
-                      selectedDescription,
-                      selectedPm.username,
-                      selectedDevs
-                    )
-                  "
-                  class="btn btn-primary"
-                >
-                  Submit changes
-                </button>
-              </div>
-              <div class="col-md-2">
-                <button
-                  type="submit"
-                  v-on:click="deleteProject(this.selectedProjectId)"
-                  class="btn btn-danger"
-                >
-                  Delete project
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-        <div
-          class="tab-pane fade"
-          id="profile"
-          role="tabpanel"
-          aria-labelledby="profile-tab"
-        >
-          <div class="text-container">
-            Tickets assigned to the selected project
-          </div>
-          <div class="row g-100">
+    <div class="theContent">
+      <div class="tables">
+        <div class="row">
+          <div class="col">
             <div class="table-responsive">
               <DataTable
-                :columns="ticketColumns"
-                :data="projectTickets"
+                :columns="columns"
+                :data="data"
                 class="table caption-top"
                 width="100%"
                 :options="{
                   pageLength: 5,
                   lengthChange: false,
                   select: true,
-                  autoWidth: false,
+                  select: {
+                    style: 'single',
+                    toggleable: false,
+                  },
                 }"
-                ref="tableTicket"
-                @select="clickRowTicket()"
+                ref="table"
+                @select="clickRow()"
               >
                 <caption>
-                  List of tickets
+                  Assigned projects
                 </caption>
                 <thead class="table-light">
                   <tr>
                     <th scope="col">Title</th>
-                    <th scope="col">Author</th>
-                    <th scope="col">Priority</th>
-                    <th scope="col">Type</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Creation date</th>
-                    <th scope="col">Project</th>
-                    <th scope="col"></th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Project Manager</th>
                   </tr>
                 </thead>
               </DataTable>
+            </div>
+            <button
+              v-if="currentUserIsAdminOrPM"
+              type="button"
+              class="btn btn-primary"
+            >
+              <a
+                href="#/"
+                data-bs-toggle="modal"
+                data-bs-target="#exampleModal2"
+                >New project</a
+              >
+            </button>
+          </div>
+        </div>
+      </div>
 
-              <div class="row">
-                <div class="col-md-2">
-                  <button type="button" class="btn btn-primary">
-                    <a
-                      href="#"
-                      data-bs-toggle="modal"
-                      data-bs-target="#exampleModal3"
-                      >New ticket</a
+      <div class="outer-container">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link active"
+              id="home-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#home"
+              type="button"
+              role="tab"
+              aria-controls="home"
+              aria-selected="true"
+            >
+              Project information
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="profile-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#profile"
+              type="button"
+              role="tab"
+              aria-controls="profile"
+              aria-selected="false"
+            >
+              Tickets
+            </button>
+          </li>
+        </ul>
+        <div class="tab-content" id="myTabContent">
+          <div
+            class="tab-pane fade show active"
+            id="home"
+            role="tabpanel"
+            aria-labelledby="home-tab"
+          >
+            <div class="text-container">Edit project information</div>
+            <div class="afterTabTitle">
+              <div class="form-container">
+                <form class="row g-3" v-if="currentUserIsAdminOrPM">
+                  <span v-if="errorModifyProject != ''">{{
+                    errorModifyProject
+                  }}</span>
+                  <span v-if="errorSetDevsInModify != ''">{{
+                    errorSetDevsInModify
+                  }}</span>
+                  <span v-if="errorAssignPMtoProjectInModify != ''">{{
+                    errorAssignPMtoProjectInModify
+                  }}</span>
+                  <span v-if="errorDeleteProject != ''">{{
+                    errorDeleteProject
+                  }}</span>
+                  <div class="col-md-6">
+                    <label for="inputEmail4" class="form-label">TITLE</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      v-model="selectedName"
+                      id="selectedName"
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label for="inputPassword4" class="form-label"
+                      >DESCRIPTION</label
                     >
-                  </button>
-                </div>
-                <div class="col-md-8">
-                  <button type="button" class="btn btn-primary">
-                    <a
-                      href="#"
-                      data-bs-toggle="modal"
-                      data-bs-target="#exampleModal1"
-                      >Edit ticket</a
+                    <input
+                      type="text"
+                      class="form-control"
+                      v-model="selectedDescription"
+                      id="selectedDescription"
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label for="inputState" class="form-label"
+                      >PROJECT MANAGER</label
                     >
-                  </button>
-                </div>
-                <div class="col-md-2">
-                  <button type="button" class="btn btn-danger">
-                    <a href="#" v-on:click="deleteTicket(selectedTicketId)"
-                      >Delete ticket</a
+                    <select
+                      id="inputState"
+                      v-model="selectedPm.username"
+                      class="form-select"
                     >
-                  </button>
+                      <option
+                        v-for="pm in projectManagers"
+                        :key="pm.id"
+                        v-bind:value="pm.username"
+                      >
+                        {{ pm.firstName }} {{ pm.lastName }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="inputAddress" class="form-label"
+                      >ASSIGNED DEVELOPERS</label
+                    >
+                    <select
+                      class="form-select"
+                      v-model="selectedDevs"
+                      multiple
+                      aria-label="multiple select example"
+                    >
+                      <option
+                        v-for="dev in developers"
+                        :key="dev.id"
+                        v-bind:value="dev.username"
+                      >
+                        {{ dev.firstName }} {{ dev.lastName }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-10">
+                    <button
+                      v-if="currentUserIsAdminOrPM"
+                      type="button"
+                      v-on:click="
+                        modifyProject(
+                          selectedProjectId,
+                          selectedName,
+                          selectedDescription,
+                          selectedPm.username,
+                          selectedDevs
+                        )
+                      "
+                      class="btn btn-primary"
+                    >
+                      Submit changes
+                    </button>
+                  </div>
+                  <div class="col-md-2">
+                    <button
+                      v-if="currentUserIsAdminOrPM"
+                      type="button"
+                      v-on:click="deleteProject(selectedProjectId)"
+                      class="btn btn-danger"
+                    >
+                      Delete project
+                    </button>
+                  </div>
+                </form>
+                <div
+                  class="projectInfoContainer"
+                  v-if="!currentUserIsAdminOrPM"
+                >
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label for="pname" class="form-label">TITLE</label>
+                      <p>{{ selectedName }}</p>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="pdescription" class="form-label"
+                        >DESCRIPTION</label
+                      >
+                      <p>{{ selectedDescription }}</p>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="ppm" class="form-label"
+                        >PROJECT MANAGER</label
+                      >
+                      <p>
+                        {{ selectedPm.firstName }} {{ selectedPm.lastName }}
+                      </p>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="pdevs" class="form-label"
+                        >ASSIGNED DEVELOPERS</label
+                      >
+                      <div v-for="dev in selectedDevsObj" :key="dev.id">
+                        <p>{{ dev.firstName }} {{ dev.lastName }}</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-          <div class="row g-3">
-            <div class="col">
-              <div class="ticket-info">
+          <div
+            class="tab-pane fade"
+            id="profile"
+            role="tabpanel"
+            aria-labelledby="profile-tab"
+          >
+            <div class="text-container">
+              Tickets assigned to the selected project
+            </div>
+            <div class="row g-100">
+              <div class="table-responsive">
+                <span v-if="errorSelectTicket != ''">{{
+                  errorSelectTicket
+                }}</span>
+                <DataTable
+                  :columns="ticketColumns"
+                  :data="projectTickets"
+                  class="table caption-top"
+                  width="100%"
+                  :options="{
+                    pageLength: 5,
+                    lengthChange: false,
+                    select: true,
+                    autoWidth: false,
+                    select: {
+                      style: 'single',
+                      toggleable: false,
+                    },
+                  }"
+                  ref="tableTicket"
+                  @select="clickRowTicket()"
+                >
+                  <caption>
+                    List of tickets
+                  </caption>
+                  <thead class="table-light">
+                    <tr>
+                      <th scope="col">Title</th>
+                      <th scope="col">Author</th>
+                      <th scope="col">Priority</th>
+                      <th scope="col">Type</th>
+                      <th scope="col">Status</th>
+                      <th scope="col">Creation date</th>
+                      <th scope="col">Project</th>
+                      <th scope="col"></th>
+                    </tr>
+                  </thead>
+                </DataTable>
+
                 <div class="row">
-                  <div class="text-container">Selected ticket information</div>
-                </div>
-                <div class="row">
-                  <div class="col-6">
-                    <div class="text-container3">TITLE</div>
-                    <div class="text-container4">{{ selectedTicketTitle }}</div>
-                  </div>
-                  <div class="col-6">
-                    <div class="text-container3">PROJECT</div>
-                    <div class="text-container4">
-                      {{ selectedTicketProject.name }}
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col">
-                    <div class="text-container3">DESCRIPTION</div>
-                    <div class="text-container4">
-                      {{ selectedTicketDescription }}
-                    </div>
-                  </div>
-                  <div class="col">
-                    <div class="text-container3">AUTHOR</div>
-                    <div class="text-container4">
-                      {{ selectedTicketSubmitter.firstName }}
-                      {{ selectedTicketSubmitter.lastName }}
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col">
-                    <div class="text-container3">TYPE</div>
-                    <div class="text-container4">{{ selectedTicketType }}</div>
-                  </div>
-                  <div class="col">
-                    <div class="text-container3">PRIORITY</div>
-                    <div class="text-container4">
-                      {{ selectedTicketPriority }}
-                    </div>
-                  </div>
-                  <div class="col">
-                    <div class="text-container3">STATUS</div>
-                    <div class="text-container4">
-                      {{ selectedTicketStatus }}
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col">
-                    <div class="text-container3">ASSIGNED DEVS</div>
-                    <div
-                      class="text-container4"
-                      v-for="d in selectedTicketDevs"
-                      :key="d.id"
-                    >
-                      {{ d.firstName }} {{ d.lastName }}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="ticket-hist">
-                <div class="row">
-                  <div class="col">
-                    <div class="table-responsive">
-                      <DataTable
-                        :columns="historyColumns"
-                        :data="historyData"
-                        class="table caption-top"
-                        width="100%"
-                        :options="{
-                          pageLength: 5,
-                          lengthChange: false,
-                          select: true,
-                        }"
-                        ref="the-tables"
+                  <div class="col-md-2">
+                    <button type="button" class="btn btn-primary">
+                      <a
+                        href="#/"
+                        data-bs-toggle="modal"
+                        data-bs-target="#exampleModal3"
+                        >New ticket</a
                       >
-                        <caption>
-                          Ticket history
-                        </caption>
-                        <thead class="table-light">
-                          <tr>
-                            <th scope="col">Property changed</th>
-                            <th scope="col">Old value</th>
-                            <th scope="col">New value</th>
-                            <th scope="col">Date of change</th>
-                          </tr>
-                        </thead>
-                      </DataTable>
-                    </div>
+                    </button>
+                  </div>
+                  <div class="col-md-8">
+                    <button type="button" class="btn btn-primary">
+                      <a
+                        href="#/"
+                        v-on:click="checkIfTicketSelected()"
+                        data-bs-target="#exampleModal1"
+                        >Edit ticket</a
+                      >
+                    </button>
+                  </div>
+                  <div class="col-md-2">
+                    <button type="button" class="btn btn-danger">
+                      <a href="#/" v-on:click="deleteTicket(selectedTicketId)"
+                        >Delete ticket</a
+                      >
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="col">
-              <div class="row d-flex justify-content-center">
-                <div>
-                  <div
-                    class="card shadow-0 border"
-                    style="background-color: #f0f2f5"
-                  >
-                    <div class="card-body p-4">
-                      <div data-mdb-input-init class="form-outline mb-4">
-                        <input
-                          type="text"
-                          id="addANote"
-                          v-model="commentMessage"
-                          class="form-control"
-                          placeholder="Type comment..."
-                        />
-                        <button type="button" class="btn btn-primary">
-                          <a
-                            href="#"
-                            v-on:click="
-                              addComment(selectedTicketId, commentMessage)
-                            "
-                            >Publish</a
-                          >
-                        </button>
+            <div class="row g-3">
+              <div class="col">
+                <div class="ticket-info">
+                  <div class="row">
+                    <div class="text-container">
+                      Selected ticket information
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-6">
+                      <div class="text-container3">TITLE</div>
+                      <div class="text-container4">
+                        {{ selectedTicketTitle }}
                       </div>
-
+                    </div>
+                    <div class="col-6">
+                      <div class="text-container3">PROJECT</div>
+                      <div class="text-container4">
+                        {{ selectedTicketProjectName }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col">
+                      <div class="text-container3">DESCRIPTION</div>
+                      <div class="text-container4">
+                        {{ selectedTicketDescription }}
+                      </div>
+                    </div>
+                    <div class="col">
+                      <div class="text-container3">AUTHOR</div>
+                      <div class="text-container4">
+                        {{ selectedTicketSubmitter.firstName }}
+                        {{ selectedTicketSubmitter.lastName }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col">
+                      <div class="text-container3">TYPE</div>
+                      <div class="text-container4">
+                        {{ selectedTicketType }}
+                      </div>
+                    </div>
+                    <div class="col">
+                      <div class="text-container3">PRIORITY</div>
+                      <div class="text-container4">
+                        {{ selectedTicketPriority }}
+                      </div>
+                    </div>
+                    <div class="col">
+                      <div class="text-container3">STATUS</div>
+                      <div class="text-container4">
+                        {{ selectedTicketStatus }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col">
+                      <div class="text-container3">ASSIGNED DEVS</div>
                       <div
-                        class="comments"
-                        v-for="c in commentsOfCurrPage"
-                        :key="c.id"
+                        class="text-container4"
+                        v-for="d in selectedTicketDevs"
+                        :key="d.id"
                       >
-                        <div class="card mb-4">
-                          <div class="card-body">
-                            <p>{{ c.message }}</p>
+                        {{ d.firstName }} {{ d.lastName }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="ticket-hist">
+                  <div class="row">
+                    <div class="col">
+                      <div class="table-responsive">
+                        <DataTable
+                          :columns="historyColumns"
+                          :data="historyData"
+                          class="table caption-top"
+                          width="100%"
+                          :options="{
+                            pageLength: 5,
+                            lengthChange: false,
+                            select: false,
+                          }"
+                          ref="the-tables"
+                        >
+                          <caption>
+                            Ticket history
+                          </caption>
+                          <thead class="table-light">
+                            <tr>
+                              <th scope="col">Property changed</th>
+                              <th scope="col">Old value</th>
+                              <th scope="col">New value</th>
+                              <th scope="col">Date of change</th>
+                            </tr>
+                          </thead>
+                        </DataTable>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="row d-flex justify-content-center">
+                  <div>
+                    <div
+                      class="card shadow-0 border"
+                      style="background-color: #f0f2f5"
+                    >
+                      <div class="card-body p-4">
+                        <div data-mdb-input-init class="form-outline mb-4">
+                          <span v-if="errorCreateComment != ''">{{
+                            errorCreateComment
+                          }}</span>
+                          <input
+                            type="text"
+                            id="addANote"
+                            v-model="commentMessage"
+                            class="form-control"
+                            placeholder="Type comment..."
+                          />
+                          <button type="button" class="btn btn-primary">
+                            <a
+                              href="#/"
+                              v-on:click="
+                                addComment(selectedTicketId, commentMessage)
+                              "
+                              >Publish</a
+                            >
+                          </button>
+                        </div>
 
-                            <div class="d-flex justify-content-between">
-                              <div class="d-flex flex-row align-items-center">
-                                <p class="small mb-0 ms-2">
-                                  {{ c.commenter.firstName }}
-                                  {{ c.commenter.lastName }}
-                                </p>
-                              </div>
-                              <div class="d-flex flex-row align-items-center">
-                                <p class="small text-muted mb-0">
-                                  {{ c.creationDate.substring(0, 19) }}
-                                </p>
+                        <div
+                          class="comments"
+                          v-for="c in commentsOfCurrPage"
+                          :key="c.id"
+                        >
+                          <div class="card mb-4">
+                            <div class="card-body">
+                              <p>{{ c.message }}</p>
+
+                              <div class="d-flex justify-content-between">
+                                <div class="d-flex flex-row align-items-center">
+                                  <p class="small mb-0 ms-2">
+                                    {{ c.commenter.firstName }}
+                                    {{ c.commenter.lastName }}
+                                  </p>
+                                </div>
+                                <div class="d-flex flex-row align-items-center">
+                                  <p class="small text-muted mb-0">
+                                    {{ c.creationDate.substring(0, 19) }}
+                                  </p>
+                                </div>
                               </div>
                             </div>
                           </div>
                         </div>
+                        <p>
+                          <a v-if="prevActive" class="badge" @click="gotoPrev()"
+                            >Prev</a
+                          >
+                          <a v-else class="badgeInactive">Prev</a>
+                          - {{ pageIndex + 1 }} -
+                          <a v-if="nextActive" class="badge" @click="gotoNext()"
+                            >Next</a
+                          >
+                          <a v-else class="badgeInactive">Next</a>
+                        </p>
                       </div>
-                      <p>
-                        <a v-if="prevActive" class="badge" @click="gotoPrev()"
-                          >Prev</a
-                        >
-                        <a v-else class="badgeInactive">Prev</a>
-                        - {{ pageIndex + 1 }} -
-                        <a v-if="nextActive" class="badge" @click="gotoNext()"
-                          >Next</a
-                        >
-                        <a v-else class="badgeInactive">Next</a>
-                      </p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-        <div
-          class="tab-pane fade"
-          id="contact"
-          role="tabpanel"
-          aria-labelledby="contact-tab"
-        >
-          ...
+          <div
+            class="tab-pane fade"
+            id="contact"
+            role="tabpanel"
+            aria-labelledby="contact-tab"
+          >
+            ...
+          </div>
         </div>
       </div>
     </div>
@@ -745,20 +848,18 @@
 
 <script>
 // Comment paging from https://stackoverflow.com/questions/62905543/pagination-for-dynamically-generated-content
-
+import { Modal } from "bootstrap";
 import NavBar from "./NavBar.vue";
-import axios from "axios";
-var backendUrl = "http://localhost:8080";
 import DataTable from "datatables.net-vue3";
 import DataTablesCore from "datatables.net";
 import "datatables.net-select";
 import "datatables.net-responsive";
 import "datatables.net-select-dt";
+import ProjectService from "../services/project.service";
+import TicketService from "../services/ticket.service";
+import UserService from "../services/user.service";
+import EventBus from "../common/EventBus";
 DataTable.use(DataTablesCore);
-
-var AXIOS = axios.create({
-  baseURL: backendUrl,
-});
 
 export default {
   name: "ProjectPage",
@@ -768,17 +869,21 @@ export default {
   },
   data() {
     return {
+      modalInstance: null,
+      ticketTitle: "",
+      ticketDescription: "",
+      ticketPriority: "null",
+      ticketStatus: "null",
+      ticketType: "null",
       commentMessage: "",
       historyData: [],
       data: [],
+      ticketDevs: [],
       newTicketProject: "",
-      newTicketDevs: "",
+      newTicketDevs: [],
       newTitle: "",
       newDescription: "",
       newPriority: "",
-      priority: "null",
-      type: "null",
-      status: "null",
       newStatus: "",
       newType: "",
       projectTickets: [],
@@ -791,17 +896,24 @@ export default {
       errorCreateProject: "",
       errorDeleteProject: "",
       errorAssignDevsToTicket: "",
+      errorAssignDevsToTicketInModify: "",
       errorAssignProjectToTicket: "",
+      errorAssignProjectToTicketInModify: "",
       errorCreateTicket: "",
       errorAssignPMtoProject: "",
+      errorAssignPMtoProjectInModify: "",
       errorGetDevelopers: "",
       errorGetProjectTickets: "",
       errorModifyProject: "",
+      errorModifyTicket: "",
       errorSetDevs: "",
+      errorSetDevsInModify: "",
+      errorGetPMs: "",
+      errorSelectTicket: "",
       priorityChoices: ["None", "Low", "Medium", "High"],
       typeChoices: ["Bug", "FeatureRequest", "DocRequest", "Other"],
       statusChoices: ["New", "Open", "InProgress", "Resolved", "AddInfo"],
-      errorGetPMs: "",
+
       projectName: "",
       projectDescription: "",
       projectPM: "null",
@@ -809,6 +921,7 @@ export default {
       selectedName: "",
       selectedDescription: "",
       selectedDevs: [],
+      selectedDevsObj: [],
       selectedProjectDevs: [],
       selectedPm: "",
       selectedTickets: "",
@@ -816,6 +929,7 @@ export default {
       selectedTicketSubmitter: "",
       selectedTicketTitle: "",
       selectedTicketProject: "",
+      selectedTicketProjectName: "",
       selectedTicketDescription: "",
       selectedTicketDevs: [],
       selectedTicketTA: [],
@@ -836,7 +950,7 @@ export default {
         { data: "status" },
         {
           render: function (data, type, row) {
-            return row.creationDate.substring(0, 10);
+            return row.creationDate.substring(0, 19);
           },
         },
         { data: "project.name" },
@@ -847,7 +961,7 @@ export default {
         { data: "newValueOfProperty" },
         {
           render: function (data, type, row) {
-            return row.dateOfChange.substring(0, 10);
+            return row.dateOfChange.substring(0, 19);
           },
         },
       ],
@@ -869,7 +983,22 @@ export default {
       nextActive: false,
     };
   },
+  // Methods inspired from: https://www.bezkoder.com/vue-3-authentication-jwt/
+  // and from: https://www.bezkoder.com/vue-refresh-token/
   computed: {
+    currentUser() {
+      return this.$store.state.auth.user;
+    },
+    currentUserIsAdminOrPM() {
+      if (this.currentUser && this.currentUser.roles) {
+        return (
+          this.currentUser.roles.includes("ROLE_ADMIN") ||
+          this.currentUser.roles.includes("ROLE_PROJECTMANAGER")
+        );
+      }
+
+      return false;
+    },
     pages: function () {
       if (this.selectedComments.length % this.pageSize == 0) {
         return this.selectedComments.length / this.pageSize;
@@ -883,54 +1012,123 @@ export default {
         this.pageSize * (this.pageIndex + 1)
       );
     },
+    loggedIn() {
+      return this.$store.state.auth.status.loggedIn;
+    },
   },
   created: function () {
-    // Initializing  items from backend
-    AXIOS.get("/projects/")
-      .then((response) => {
-        // JSON responses are automatically parsed.
-        this.data = response.data;
-      })
-      .catch((e) => {
-        this.errorGetProjects = e;
-      });
+    if (!this.loggedIn) {
+      this.$router.push("/login");
+    } else {
+      // Initializing  items from backend
+      if (this.currentUserIsAdminOrPM) {
+        ProjectService.getAllProjects().then(
+          (response) => {
+            // JSON responses are automatically parsed.
+            this.data = response.data.slice(0, 3);
+            console.log(this.data);
+          },
+          (error) => {
+            this.errorGetProjects =
+              (error.response &&
+                error.response.data &&
+                error.response.data.message) ||
+              error.message ||
+              error.toString();
 
-    AXIOS.get("/developers/")
-      .then((response) => {
-        // JSON responses are automatically parsed.
-        this.developers = response.data;
-        console.log(this.developers);
-      })
-      .catch((e) => {
-        this.errorGetDevelopers = e;
-      });
+            if (error.response && error.response.status === 403) {
+              EventBus.dispatch("logout");
+            }
+          }
+        );
 
-    AXIOS.get("/projectmanagers/")
-      .then((response) => {
-        // JSON responses are automatically parsed.
-        this.projectManagers = response.data;
-        console.log(this.projectManagers);
-      })
-      .catch((e) => {
-        this.errorGetPMs = e;
-      });
+        UserService.getAllDevelopers().then(
+          (response) => {
+            // JSON responses are automatically parsed.
+            this.developers = response.data;
+            console.log(this.developers);
+          },
+          (error) => {
+            this.errorGetDevelopers =
+              (error.response &&
+                error.response.data &&
+                error.response.data.message) ||
+              error.message ||
+              error.toString();
+
+            if (error.response && error.response.status === 403) {
+              EventBus.dispatch("logout");
+            }
+          }
+        );
+
+        UserService.getAllProjectManagers().then(
+          (response) => {
+            // JSON responses are automatically parsed.
+            this.projectManagers = response.data;
+            console.log(this.projectManagers);
+          },
+          (error) => {
+            this.errorGetPMs =
+              (error.response &&
+                error.response.data &&
+                error.response.data.message) ||
+              error.message ||
+              error.toString();
+
+            if (error.response && error.response.status === 403) {
+              EventBus.dispatch("logout");
+            }
+          }
+        );
+      } else {
+        ProjectService.getAssignedProjectForDev(this.currentUser.username).then(
+          (response) => {
+            // JSON responses are automatically parsed.
+            this.data = response.data.slice(0, 3);
+            console.log(this.data);
+          },
+          (error) => {
+            this.errorGetProjects =
+              (error.response &&
+                error.response.data &&
+                error.response.data.message) ||
+              error.message ||
+              error.toString();
+
+            if (error.response && error.response.status === 403) {
+              EventBus.dispatch("logout");
+            }
+          }
+        );
+      }
+    }
   },
 
   methods: {
     setDevs(ticketProject) {
-      AXIOS.get("/project/".concat(ticketProject), {}, {})
-        .then((response) => {
+      ProjectService.getProjectWithId(ticketProject).then(
+        (response) => {
           // JSON responses are automatically parsed.
           this.r = response.data;
           this.selectedProjectDevs = this.r.assignedDevelopers;
-        })
-        .catch((e) => {
-          this.errorGetProject = e;
-          var errorMsg = e.response.data.message;
-          console.log(errorMsg);
-        });
+        },
+        (error) => {
+          this.errorGetProjects =
+            (error.response &&
+              error.response.data &&
+              error.response.data.message) ||
+            error.message ||
+            error.toString();
+
+          if (error.response && error.response.status === 403) {
+            EventBus.dispatch("logout");
+          }
+        }
+      );
     },
     clickRowTicket() {
+      this.resetErrorMessages();
       const table = this.$refs.tableTicket.dt;
       var ticket = table.row(".selected").data();
       if (ticket != null) {
@@ -938,6 +1136,7 @@ export default {
         this.selectedTicketId = ticket.id;
         this.selectedTicketTitle = ticket.title;
         this.selectedTicketProject = ticket.project.id;
+        this.selectedTicketProjectName = ticket.project.name;
         this.selectedTicketDescription = ticket.description;
         this.selectedTicketDevs = ticket.assignedDevelopers;
         this.selectedTicketTA = ticket.ticketAttachments;
@@ -946,7 +1145,11 @@ export default {
         this.selectedTicketStatus = ticket.status;
         this.selectedComments = ticket.comments;
         this.newTicketProject = ticket.project.id;
-        this.newTicketDevs = ticket.assignedDevelopers;
+        if (ticket.assignedDevelopers != null) {
+          for (var d of ticket.assignedDevelopers) {
+            this.newTicketDevs.push(d.username);
+          }
+        }
         this.newTitle = ticket.title;
         this.newDescription = ticket.description;
         this.newPriority = ticket.priority;
@@ -969,32 +1172,85 @@ export default {
       }
     },
     clickRow() {
+      this.resetErrorMessages();
+      this.selectedTicketSubmitter = "";
+      this.selectedTicketId = "";
+      this.selectedTicketTitle = "";
+      this.selectedTicketProject = "";
+      this.selectedTicketProjectName = "";
+      this.selectedTicketDescription = "";
+      this.selectedTicketDevs = [];
+      this.selectedTicketPriority = "";
+      this.selectedTicketType = "";
+      this.selectedTicketStatus = "";
+      this.selectedComments = [];
+      this.historyData = [];
+      const tableTicket = this.$refs.tableTicket.dt;
+      tableTicket.row(".selected").deselect();
       const table = this.$refs.table.dt;
       var project = table.row(".selected").data();
 
       this.selectedDevs = [];
+      this.selectedDevsObj = [];
       this.selectedProjectDevs = project.assignedDevelopers;
 
       this.selectedProjectId = project.id;
       this.selectedName = project.name;
       this.selectedDescription = project.description;
-      console.log(project.assignedDevelopers);
       for (var d of project.assignedDevelopers) {
         this.selectedDevs.push(d.username);
+        this.selectedDevsObj.push(d);
       }
       console.log(this.selectedDevs);
       this.selectedPm = project.projectManager;
       this.selectedTickets = project.tickets;
 
-      // Initializing  items from backend
-      AXIOS.get("/project/tickets/".concat(this.selectedProjectId))
-        .then((response) => {
+      TicketService.getTicketsForProjectWithId(this.selectedProjectId).then(
+        (response) => {
           // JSON responses are automatically parsed.
           this.projectTickets = response.data;
-        })
-        .catch((e) => {
-          this.errorGetProjectTickets = e;
-        });
+          // Make sure project of ticket is up to date
+          for (var t of this.projectTickets) {
+            t.project = project;
+          }
+        },
+        (error) => {
+          this.errorGetProjectTickets =
+            (error.response &&
+              error.response.data &&
+              error.response.data.message) ||
+            error.message ||
+            error.toString();
+
+          if (error.response && error.response.status === 403) {
+            EventBus.dispatch("logout");
+          }
+        }
+      );
+    },
+
+    resetErrorMessages() {
+      this.errorGetProjects = "";
+      this.errorCreateComment = "";
+      this.errorDeleteTicket = "";
+      this.errorGetProject = "";
+      this.errorCreateProject = "";
+      this.errorDeleteProject = "";
+      this.errorAssignDevsToTicket = "";
+      this.errorAssignDevsToTicketInModify = "";
+      this.errorAssignProjectToTicket = "";
+      this.errorAssignProjectToTicketInModify = "";
+      this.errorCreateTicket = "";
+      this.errorAssignPMtoProject = "";
+      this.errorAssignPMtoProjectInModify = "";
+      this.errorGetDevelopers = "";
+      this.errorGetProjectTickets = "";
+      this.errorModifyProject = "";
+      this.errorModifyTicket = "";
+      this.errorSetDevs = "";
+      this.errorSetDevsInModify = "";
+      this.errorGetPMs = "";
+      this.errorSelectTicket = "";
     },
 
     // TODO: how to change password???
@@ -1004,49 +1260,63 @@ export default {
       projectManagerUsername,
       projectDevs
     ) {
-      AXIOS.post(
-        "/project/create/",
-        {},
-        {
-          params: {
-            name: name,
-            description: description,
-            projectManagerUsername: projectManagerUsername,
-          },
-        }
-      )
-        .then((response) => {
-          // JSON responses are automatically parsed.
-          this.r = response.data;
-          var projectId = this.r.id;
+      this.resetErrorMessages();
+      if (projectDevs.length != 0) {
+        this.errorSetDevs = "";
 
-          AXIOS.post(
-            "/project/setDevs/".concat(projectId),
-            {},
-            {
-              params: {
-                devUsernames: projectDevs.reduce((f, s) => `${f},${s}`),
+        ProjectService.createProject(
+          name,
+          description,
+          projectManagerUsername
+        ).then(
+          (response) => {
+            // JSON responses are automatically parsed.
+            this.r = response.data;
+            var projectId = this.r.id;
+
+            ProjectService.assignDevsToProject(
+              projectId,
+              projectDevs.reduce((f, s) => `${f},${s}`)
+            ).then(
+              (response) => {
+                // JSON responses are automatically parsed.
+                this.data.push(response.data);
+                this.projectDescription = "";
+                this.projectName = "";
+                this.projectPM = "";
+                this.projectDevs = [];
+                this.$refs.Close.click();
               },
+              (error) => {
+                this.errorSetDevs =
+                  (error.response &&
+                    error.response.data &&
+                    error.response.data.message) ||
+                  error.message ||
+                  error.toString();
+
+                if (error.response && error.response.status === 403) {
+                  EventBus.dispatch("logout");
+                }
+              }
+            );
+          },
+          (error) => {
+            this.errorCreateProject =
+              (error.response &&
+                error.response.data &&
+                error.response.data.message) ||
+              error.message ||
+              error.toString();
+
+            if (error.response && error.response.status === 403) {
+              EventBus.dispatch("logout");
             }
-          )
-            .then((response) => {
-              // JSON responses are automatically parsed.
-              this.data.push(response.data);
-              this.projectDescription = "";
-              this.projectName = "";
-              this.projectPM = "";
-              this.projectDevs = [];
-              this.$refs.Close.click();
-            })
-            .catch((e) => {
-              this.errorSetDevs = e;
-            });
-        })
-        .catch((e) => {
-          this.errorCreateProject = e;
-          var errorMsg = e.response.data.message;
-          console.log(errorMsg);
-        });
+          }
+        );
+      } else {
+        this.errorSetDevs = "List of developers cannot be empty";
+      }
     },
 
     modifyProject: function (
@@ -1056,80 +1326,128 @@ export default {
       projectManagerUsername,
       projectDevs
     ) {
-      AXIOS.post(
-        "/project/modify/",
-        {},
-        {
-          params: {
-            projectId: projectId,
-            name: name,
-            description: description,
-          },
+      this.resetErrorMessages();
+      this.errorDeleteProject = "";
+      const table = this.$refs.table.dt;
+      var project = table.row(".selected").data();
+      if (project == null) {
+        this.errorModifyProject = "No project selected. ";
+      } else {
+        var indexProject = this.data.map((x) => x.id).indexOf(projectId);
+        if (projectDevs.length != 0) {
+          this.errorSetDevsInModify = "";
+
+          ProjectService.modifyProject(projectId, name, description).then(
+            (response) => {
+              // JSON responses are automatically parsed.
+              this.r = response.data;
+              this.data[indexProject].name = name;
+              this.data[indexProject].description = description;
+
+              var projectId = this.r.id;
+
+              ProjectService.assignPMToProject(
+                projectId,
+                projectManagerUsername
+              ).then(
+                (response) => {
+                  // JSON responses are automatically parsed.
+                  this.data[indexProject].projectManager =
+                    response.data.projectManager;
+                },
+                (error) => {
+                  this.errorAssignPMtoProjectInModify =
+                    (error.response &&
+                      error.response.data &&
+                      error.response.data.message) ||
+                    error.message ||
+                    error.toString();
+
+                  if (error.response && error.response.status === 403) {
+                    EventBus.dispatch("logout");
+                  }
+                }
+              );
+
+              ProjectService.assignDevsToProject(
+                projectId,
+                projectDevs.reduce((f, s) => `${f},${s}`)
+              ).then(
+                (response) => {
+                  // JSON responses are automatically parsed.
+                  this.data[indexProject].assignedDevelopers =
+                    response.data.assignedDevelopers;
+                },
+                (error) => {
+                  this.errorSetDevsInModify =
+                    (error.response &&
+                      error.response.data &&
+                      error.response.data.message) ||
+                    error.message ||
+                    error.toString();
+
+                  if (error.response && error.response.status === 403) {
+                    EventBus.dispatch("logout");
+                  }
+                }
+              );
+            },
+            (error) => {
+              this.errorModifyProject =
+                (error.response &&
+                  error.response.data &&
+                  error.response.data.message) ||
+                error.message ||
+                error.toString();
+
+              if (error.response && error.response.status === 403) {
+                EventBus.dispatch("logout");
+              }
+            }
+          );
+        } else {
+          this.errorSetDevsInModify = "List of developers cannot be empty. ";
         }
-      )
-        .then((response) => {
-          // JSON responses are automatically parsed.
-          this.r = response.data;
-          var projectId = this.r.id;
-
-          AXIOS.post(
-            "/project/assignPm/".concat(projectManagerUsername),
-            {},
-            {
-              params: { projectId: projectId },
-            }
-          )
-            .then((response) => {
-              // JSON responses are automatically parsed.
-              this.r = response.data;
-              console.log("THIS IS RESP DATA %o", this.r);
-            })
-            .catch((e) => {
-              this.errorAssignPMtoProject = e;
-            });
-
-          AXIOS.post(
-            "/project/setDevs/".concat(projectId),
-            {},
-            {
-              params: {
-                devUsernames: projectDevs.reduce((f, s) => `${f},${s}`),
-              },
-            }
-          )
-            .then((response) => {
-              // JSON responses are automatically parsed.
-              this.r = response.data;
-              console.log("THIS IS RESP DATA %o", this.r);
-            })
-            .catch((e) => {
-              this.errorSetDevs = e;
-            });
-
-          this.$router.push("/assignedProjects");
-        })
-        .catch((e) => {
-          this.errorModifyProject = e;
-          var errorMsg = e.response.data.message;
-          console.log(errorMsg);
-        });
+      }
     },
     deleteProject: function (projectId) {
-      var indexProject = this.data.map((x) => x.id).indexOf(projectId);
-      AXIOS.post("/project/delete/".concat(projectId), {}, {})
-        .then((response) => {
-          // JSON responses are automatically parsed.
-          this.r = response.data;
-          // Remove item from array
-          if (indexProject !== -1) {
-            this.data.splice(indexProject, 1);
+      this.resetErrorMessages();
+      const table = this.$refs.table.dt;
+      var project = table.row(".selected").data();
+      if (project == null) {
+        this.errorDeleteProject = "No project selected. ";
+      } else {
+        var indexProject = this.data.map((x) => x.id).indexOf(projectId);
+
+        ProjectService.deleteProject(projectId).then(
+          (response) => {
+            // JSON responses are automatically parsed.
+            this.r = response.data;
+
+            // Reset input fields
+            this.selectedName = "";
+            this.selectedDescription = "";
+            this.selectedPm = "";
+            this.selectedDevs = [];
+            // Remove item from array
+            if (indexProject !== -1) {
+              this.data.splice(indexProject, 1);
+            }
+          },
+          (error) => {
+            this.errorDeleteProject =
+              (error.response &&
+                error.response.data &&
+                error.response.data.message) ||
+              error.message ||
+              error.toString();
+
+            if (error.response && error.response.status === 403) {
+              EventBus.dispatch("logout");
+            }
           }
-        })
-        .catch((e) => {
-          this.errorDeleteProject = e;
-          var errorMsg = e.response.data.message;
-          console.log(errorMsg);
-        });
+        );
+      }
     },
 
     createTicket: function (
@@ -1141,56 +1459,71 @@ export default {
       ticketProject,
       ticketDevs
     ) {
-      AXIOS.post(
-        "/ticket/create/",
-        {},
-        {
-          params: {
-            title: title,
-            description: description,
-            priority: priority,
-            status: status,
-            type: type,
-            projectId: ticketProject,
-            submitterUsername: localStorage.getItem("token"),
-          },
-        }
-      )
-        .then((response) => {
-          // JSON responses are automatically parsed.
-          this.r = response.data;
-          var ticketId = this.r.id;
+      this.resetErrorMessages();
+      if (ticketDevs.length != 0) {
+        this.errorAssignDevsToTicket = "";
 
-          AXIOS.post(
-            "/ticket/assignDevs/".concat(ticketId),
-            {},
-            {
-              params: {
-                devUsernames: ticketDevs.reduce((f, s) => `${f},${s}`),
+        TicketService.createTicket(
+          title,
+          description,
+          priority,
+          status,
+          type,
+          ticketProject,
+          this.currentUser.username
+        ).then(
+          (response) => {
+            // JSON responses are automatically parsed.
+            this.r = response.data;
+            var ticketId = this.r.id;
+
+            TicketService.assignDevsToTicket(
+              ticketId,
+              ticketDevs.reduce((f, s) => `${f},${s}`)
+            ).then(
+              (response) => {
+                // JSON responses are automatically parsed.
+                this.projectTickets.push(response.data);
+                this.ticketTitle = "";
+                this.ticketDescription = "";
+                this.ticketPriority = "null";
+                this.ticketStatus = "null";
+                this.ticketType = "null";
+                this.selectedProjectId = "";
+                this.ticketDevs = [];
+
+                this.$refs.CloseTicket.click();
               },
-            }
-          )
-            .then((response) => {
-              // JSON responses are automatically parsed.
-              this.projectTickets.push(response.data);
-              this.title = "";
-              this.description = "";
-              this.ticketDevs = [];
-              this.priority = "";
-              this.status = "";
-              this.type = "";
+              (error) => {
+                this.errorAssignDevsToTicket =
+                  (error.response &&
+                    error.response.data &&
+                    error.response.data.message) ||
+                  error.message ||
+                  error.toString();
 
-              this.$refs.CloseTicket.click();
-            })
-            .catch((e) => {
-              this.errorAssignDevsToTicket = e;
-            });
-        })
-        .catch((e) => {
-          this.errorCreateTicket = e;
-          var errorMsg = e.response.data.message;
-          console.log(errorMsg);
-        });
+                if (error.response && error.response.status === 403) {
+                  EventBus.dispatch("logout");
+                }
+              }
+            );
+          },
+          (error) => {
+            this.errorCreateTicket =
+              (error.response &&
+                error.response.data &&
+                error.response.data.message) ||
+              error.message ||
+              error.toString();
+
+            if (error.response && error.response.status === 403) {
+              EventBus.dispatch("logout");
+            }
+          }
+        );
+      } else {
+        this.errorAssignDevsToTicket = "List of developers cannot be empty. ";
+      }
     },
 
     modifyTicket: function (
@@ -1203,63 +1536,101 @@ export default {
       ticketProject,
       ticketDevs
     ) {
-      AXIOS.post(
-        "/ticket/modify/".concat(ticketId),
-        {},
-        {
-          params: {
-            title: title,
-            description: description,
-            priority: priority,
-            status: status,
-            type: type,
-          },
-        }
-      )
-        .then((response) => {
-          // JSON responses are automatically parsed.
-          this.r = response.data;
+      this.resetErrorMessages();
 
-          AXIOS.post(
-            "/ticket/assignDevs/".concat(ticketId),
-            {},
-            {
-              params: {
-                devUsernames: ticketDevs.reduce((f, s) => `${f},${s}`),
+      var indexTicket = this.projectTickets.map((x) => x.id).indexOf(ticketId);
+      if (ticketDevs.length != 0) {
+        this.errorAssignDevsToTicketInModify = "";
+        this.errorAssignProjectToTicketInModify = "";
+
+        TicketService.modifyTicket(
+          ticketId,
+          title,
+          description,
+          priority,
+          status,
+          type
+        ).then(
+          (response) => {
+            // JSON responses are automatically parsed.
+            this.r = response.data;
+
+            TicketService.assignDevsToTicket(
+              ticketId,
+              ticketDevs.reduce((f, s) => `${f},${s}`)
+            ).then(
+              (response) => {
+                // JSON responses are automatically parsed.
+                this.projectTickets[indexTicket].assignedDevelopers =
+                  response.data.assignedDevelopers;
+                this.selectedTicketDevs = response.data.assignedDevelopers;
               },
-            }
-          )
-            .then((response) => {
-              // JSON responses are automatically parsed.
-              this.r = response.data;
-            })
-            .catch((e) => {
-              this.errorAssignDevsToTicket = e;
-            });
+              (error) => {
+                this.errorAssignDevsToTicketInModify =
+                  (error.response &&
+                    error.response.data &&
+                    error.response.data.message) ||
+                  error.message ||
+                  error.toString();
 
-          AXIOS.post(
-            "/ticket/project/".concat(ticketId),
-            {},
-            {
-              params: { projectId: ticketProject },
-            }
-          )
-            .then((response) => {
-              // JSON responses are automatically parsed.
-              this.r = response.data;
-            })
-            .catch((e) => {
-              this.errorAssignProjectToTicket = e;
-            });
+                if (error.response && error.response.status === 403) {
+                  EventBus.dispatch("logout");
+                }
+              }
+            );
 
-          this.historyData = this.r.ticketHistories;
-          this.$refs.CloseModify.click();
-        })
-        .catch((e) => {
-          this.errorModifyTicket = e;
-          var errorMsg = e.response.data.message;
-          console.log(errorMsg);
-        });
+            TicketService.assignProjectToTicket(ticketId, ticketProject).then(
+              (response) => {
+                // JSON responses are automatically parsed.
+                this.projectTickets[indexTicket].project =
+                  response.data.project;
+                this.selectedTicketProject = response.data.project.id;
+                this.selectedTicketProjectName = response.data.project.name;
+              },
+              (error) => {
+                this.errorAssignProjectToTicketInModify =
+                  (error.response &&
+                    error.response.data &&
+                    error.response.data.message) ||
+                  error.message ||
+                  error.toString();
+
+                if (error.response && error.response.status === 403) {
+                  EventBus.dispatch("logout");
+                }
+              }
+            );
+            this.projectTickets[indexTicket].title = this.r.title;
+            this.selectedTicketTitle = this.r.title;
+            this.projectTickets[indexTicket].description = this.r.description;
+            this.selectedTicketDescription = this.r.description;
+            this.projectTickets[indexTicket].priority = this.r.priority;
+            this.selectedTicketPriority = this.r.priority;
+            this.projectTickets[indexTicket].status = this.r.status;
+            this.selectedTicketStatus = this.r.status;
+            this.projectTickets[indexTicket].type = this.r.type;
+            this.selectedTicketType = this.r.type;
+            this.projectTickets[indexTicket].ticketHistories =
+              this.r.ticketHistories;
+            this.historyData = this.r.ticketHistories;
+            this.$refs.CloseModify.click();
+          },
+          (error) => {
+            this.errorModifyTicket =
+              (error.response &&
+                error.response.data &&
+                error.response.data.message) ||
+              error.message ||
+              error.toString();
+
+            if (error.response && error.response.status === 403) {
+              EventBus.dispatch("logout");
+            }
+          }
+        );
+      } else {
+        this.errorAssignDevsToTicket = "List of developers cannot be empty. ";
+      }
     },
     gotoPrev: function () {
       if (this.pageIndex > 0) {
@@ -1284,44 +1655,111 @@ export default {
       }
     },
     addComment: function (ticketId, message) {
-      AXIOS.post(
-        "/ticket/createComment/".concat(ticketId),
-        {},
-        {
-          params: {
-            commenterUsername: localStorage.getItem("token"),
-            message: message,
-          },
+      this.resetErrorMessages();
+      const table = this.$refs.tableTicket.dt;
+      var ticket = table.row(".selected").data();
+      if (ticket == null) {
+        this.errorCreateComment = "No ticket selected. ";
+      } else {
+        if (message == null || message == "") {
+          this.errorCreateComment = "Comment cannot be empty. ";
+        } else {
+          var indexTicket = this.projectTickets
+            .map((x) => x.id)
+            .indexOf(ticketId);
+          TicketService.createCommentForTicket(
+            ticketId,
+            this.currentUser.username,
+            message
+          ).then(
+            (response) => {
+              // JSON responses are automatically parsed.
+              this.r = response.data;
+              this.projectTickets[indexTicket].comments = this.r.comments;
+              this.selectedComments = this.r.comments;
+              this.commentMessage = "";
+              if (this.pageIndex < this.pages - 1) {
+                this.nextActive = true;
+              } else {
+                this.nextActive = false;
+              }
+            },
+            (error) => {
+              this.errorCreateComment =
+                (error.response &&
+                  error.response.data &&
+                  error.response.data.message) ||
+                error.message ||
+                error.toString();
+
+              if (error.response && error.response.status === 403) {
+                EventBus.dispatch("logout");
+              }
+            }
+          );
         }
-      )
-        .then((response) => {
-          // JSON responses are automatically parsed.
-          this.r = response.data;
-          this.selectedComments = this.r.comments;
-          this.commentMessage = "";
-        })
-        .catch((e) => {
-          this.errorCreateComment = e;
-          var errorMsg = e.response.data.message;
-          console.log(errorMsg);
-        });
+      }
+    },
+    checkIfTicketSelected: function () {
+      this.resetErrorMessages();
+      const table = this.$refs.tableTicket.dt;
+      var ticket = table.row(".selected").data();
+      if (ticket == null) {
+        this.errorSelectTicket = "No ticket selected. ";
+      } else {
+        this.modalInstance = new Modal(
+          document.getElementById("exampleModal1"),
+          {
+            target: "#my-modal",
+          }
+        );
+        this.modalInstance.show();
+      }
     },
     deleteTicket: function (ticketId) {
-      var indexTicket = this.projectTickets.map((x) => x.id).indexOf(ticketId);
-      AXIOS.post("/ticket/delete/".concat(ticketId), {}, {})
-        .then((response) => {
-          // JSON responses are automatically parsed.
-          this.r = response.data;
-          // Remove item from array
-          if (indexTicket !== -1) {
-            this.projectTickets.splice(indexTicket, 1);
+      this.resetErrorMessages();
+      const table = this.$refs.tableTicket.dt;
+      var ticket = table.row(".selected").data();
+      if (ticket == null) {
+        this.errorSelectTicket = "No ticket selected. ";
+      } else {
+        var indexTicket = this.projectTickets
+          .map((x) => x.id)
+          .indexOf(ticketId);
+
+        TicketService.deleteTicket(ticketId).then(
+          (response) => {
+            // JSON responses are automatically parsed.
+            this.r = response.data;
+            this.historyData = [];
+            this.selectedTicketTitle = "";
+            this.selectedTicketProjectName = "";
+            this.selectedTicketDescription = "";
+            this.selectedTicketSubmitter = "";
+            this.selectedTicketType = "";
+            this.selectedTicketPriority = "";
+            this.selectedTicketStatus = "";
+            this.selectedTicketDevs = [];
+            this.selectedComments = [];
+            // Remove item from array
+            if (indexTicket !== -1) {
+              this.projectTickets.splice(indexTicket, 1);
+            }
+          },
+          (error) => {
+            this.errorDeleteTicket =
+              (error.response &&
+                error.response.data &&
+                error.response.data.message) ||
+              error.message ||
+              error.toString();
+
+            if (error.response && error.response.status === 403) {
+              EventBus.dispatch("logout");
+            }
           }
-        })
-        .catch((e) => {
-          this.errorDeleteTicket = e;
-          var errorMsg = e.response.data.message;
-          console.log(errorMsg);
-        });
+        );
+      }
     },
   },
 };
@@ -1345,6 +1783,14 @@ label {
 .tables {
   margin-top: 30px;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.tables .row {
+  width: 100%;
 }
 
 .tables .col {
@@ -1354,6 +1800,7 @@ label {
   box-shadow: 5px 5px 10px #b9b9b9;
   padding-top: 10px;
   padding-bottom: 20px;
+  width: 90%;
 }
 .text-container {
   padding: 10px;
@@ -1419,6 +1866,7 @@ button a {
   border-radius: 5px;
   box-shadow: 5px 5px 10px #b9b9b9;
   width: 100%;
+
   margin-bottom: 50px;
 }
 
@@ -1427,6 +1875,19 @@ button a {
   width: 100%;
   background-color: rgb(249, 249, 249);
   padding-bottom: 50px;
+  margin-left: 0px;
+  margin-right: 0px;
+}
+
+.projectInfoContainer {
+  width: 100%;
+  margin-top: 5px;
+  background-color: white;
+  padding: 20px;
+}
+
+.projectInfoContainer .row p {
+  margin-bottom: 0px;
 }
 
 form {
@@ -1434,6 +1895,8 @@ form {
   margin-top: 5px;
   background-color: white;
   padding: 20px;
+  margin-left: 0px;
+  margin-right: 0px;
 }
 
 button {
@@ -1473,5 +1936,22 @@ button {
 
 .tab-pane .row .table-responsive {
   padding-top: 10px;
+}
+
+span {
+  color: red;
+}
+
+.afterTabTitle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.theContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 </style>

@@ -66,16 +66,19 @@ public class ProjectService {
 			String description,
 			String projectManagerUsername,
 			Set<Developer> assignedDevelopers) {
-		String error = "";
-		if(name == null) {
-			error += "Name cannot be empty";
+        String errorMessage = "";
+        if(name == null || name.isEmpty()) {
+        	errorMessage += "Project name cannot be empty. ";
+        }
+        if(description == null || description.isEmpty()) {
+        	errorMessage += "Project description cannot be empty. ";
+        }
+		if(projectManagerUsername == null || projectManagerUsername.isEmpty()) {
+			errorMessage += "Project manager cannot be empty. ";
 		}
-		if(projectManagerUsername == null) {
-			error += "Project manager cannot be empty";
-		}
-        error = error.trim();
-        if (error.length() > 0) {
-            throw new IllegalArgumentException(error);
+		errorMessage = errorMessage.trim();
+        if (errorMessage.length() > 0) {
+            throw new IllegalArgumentException(errorMessage);
         }
         
         if (!projectManagerRepository.existsByUsername(projectManagerUsername)) {
@@ -127,13 +130,22 @@ public class ProjectService {
         if (!projectRepository.existsById(projectId)) {
             throw new IllegalArgumentException("Project does not exist!");
         }
-        Project project = projectRepository.findById(projectId);
-        if(name != null) {
-        	project.setName(name);	
+        String errorMessage = "";
+        if(name == null || name.isEmpty()) {
+        	errorMessage += "Project name cannot be empty. ";
         }
-		if(description != null) {
-			project.setDescription(description);
-		}
+        if(description == null || description.isEmpty()) {
+        	errorMessage += "Project description cannot be empty. ";
+        }
+        
+        errorMessage = errorMessage.trim();
+        if (errorMessage.length() > 0) {
+            throw new IllegalArgumentException(errorMessage);
+        }
+        
+        Project project = projectRepository.findById(projectId);
+        project.setName(name);
+        project.setDescription(description);
 		projectRepository.save(project);
 		return project;
 	}
@@ -147,6 +159,10 @@ public class ProjectService {
         }
         if (!projectManagerRepository.existsByUsername(projectManagerUsername)) {
             throw new IllegalArgumentException("Project manager does not exist!");
+        }
+        
+        if (projectManagerUsername == null || projectManagerUsername.isEmpty()) {
+            throw new IllegalArgumentException("Project manager cannot be empty.");
         }
         Project project = projectRepository.findById(projectId);
         ProjectManager projectManager = projectManagerRepository.findByUsername(projectManagerUsername);
@@ -189,6 +205,10 @@ public class ProjectService {
         if (!projectRepository.existsById(projectId)) {
             throw new IllegalArgumentException("Project does not exist!");
         }
+        if (usernames == null || usernames.size() == 0) {
+            throw new IllegalArgumentException("List of developers is empty");
+        }
+
         Project project = projectRepository.findById(projectId);
         Set<Developer> developers = new HashSet<Developer>();
         for (String username: usernames) {

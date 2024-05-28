@@ -6,7 +6,9 @@ import com.bugtracker.SpringBootRestApp.model.UserAccount;
 
 public interface UserAccountRepository extends CrudRepository<UserAccount, String>{
 	boolean existsByUsername(String username);
-	UserAccount findById(int id);
+	
+	boolean existsByEmail(String email);
+	UserAccount findById(Long id);
 	
 	UserAccount findByUsername(String username);
 	

@@ -1,133 +1,192 @@
 <template>
-<div class="containers">
-<div class="row">
-<h3>Create a developer account</h3>
-<div class="mb-3">
-  <label for="username1" class="form-label">Username</label>
-  <input type="text" v-model="newDev.username" class="form-control" id="username1" placeholder="">
-</div>
-<div class="mb-3">
-  <label for="email2" class="form-label">First name</label>
-  <input type="text" v-model="newDev.firstName" class="form-control" id="email2" placeholder="">
-</div>
-<div class="mb-3">
-  <label for="lastName" class="form-label">Last name</label>
-  <input type="text" v-model="newDev.lastName" class="form-control" id="lastName" placeholder="">
-</div>
-<div class="mb-3">
-  <label for="firstName" class="form-label">Email</label>
-  <input type="text" v-model="newDev.email" class="form-control" id="firstName" placeholder="">
-</div>
-<div class="mb-3">
-  <label for="pwd" class="form-label">Password</label>
-  <input type="text" v-model="newDev.password" class="form-control" id="pwd" placeholder="">
-</div>
-  <div class="mb-3">
-    <button type="submit" class="btn btn-primary" 
-    v-on:click="createDev(newDev.username, newDev.email,
-           newDev.password, newDev.firstName, newDev.lastName)">Sign up</button>
-  </div>
-  </div>
+  <NavBar />
+  <div class="container">
+    <div class="hey">
+      <div class="header">
+        <h3>Create a developer account</h3>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <Form @submit="handleRegister" :validation-schema="schema">
+            <div class="d-flex flex-column" v-if="!successful">
+              <div class="form-group mb-12">
+                <label for="username">Username</label>
+                <Field name="username" type="text" class="form-control" />
+                <ErrorMessage name="username" class="error-feedback" />
+              </div>
+              <div class="form-group mb-12">
+                <label for="firstName">First Name</label>
+                <Field name="firstName" type="firstName" class="form-control" />
+                <ErrorMessage name="firstName" class="error-feedback" />
+              </div>
+              <div class="form-group mb-12">
+                <label for="lastName">Last Name</label>
+                <Field name="lastName" type="lastName" class="form-control" />
+                <ErrorMessage name="lastName" class="error-feedback" />
+              </div>
+              <div class="form-group mb-12">
+                <label for="email">Email</label>
+                <Field name="email" type="email" class="form-control" />
+                <ErrorMessage name="email" class="error-feedback" />
+              </div>
+              <div class="form-group mb-12">
+                <label for="password">Password</label>
+                <Field name="password" type="password" class="form-control" />
+                <ErrorMessage name="password" class="error-feedback" />
+              </div>
+
+              <div class="form-group mb-12">
+                <button class="btn btn-primary" :disabled="loading">
+                  <span
+                    v-show="loading"
+                    class="spinner-border spinner-border-sm"
+                  ></span>
+                  Sign Up
+                </button>
+              </div>
+            </div>
+          </Form>
+          <div
+            v-if="message"
+            class="alert"
+            :class="successful ? 'alert-success' : 'alert-danger'"
+          >
+            {{ message }}
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios'
-var backendUrl = 'http://localhost:8080'
-
-var AXIOS = axios.create({
-  baseURL: backendUrl
-})
+import { Form, Field, ErrorMessage } from "vee-validate";
+import * as yup from "yup";
+import NavBar from "./NavBar.vue";
 
 export default {
-  name: 'SignupPage',
-    data() {
-    return {
-      devs: [],
-      newDev: {
-        username: '',
-        email: '',
-        password: '',
-        firstName: '',
-        lastName: ''
-      },
-      errorCreateDev: '',
-      response: []
+  name: "SignupPage",
+  components: {
+    NavBar,
+    Form,
+    Field,
+    ErrorMessage,
+  },
+  data() {
+    const schema = yup.object().shape({
+      username: yup
+        .string()
+        .required("Username is required!")
+        .min(3, "Must be at least 3 characters!")
+        .max(20, "Must be maximum 20 characters!"),
+      firstName: yup
+        .string()
+        .required("First name is required!")
+        .min(3, "Must be at least 3 characters!")
+        .max(20, "Must be maximum 20 characters!"),
+      lastName: yup
+        .string()
+        .required("Last name is required!")
+        .min(3, "Must be at least 3 characters!")
+        .max(20, "Must be maximum 20 characters!"),
+      email: yup
+        .string()
+        .required("Email is required!")
+        .email("Email is invalid!")
+        .max(50, "Must be maximum 50 characters!"),
+      password: yup
+        .string()
+        .required("Password is required!")
+        .min(6, "Must be at least 6 characters!")
+        .max(40, "Must be maximum 40 characters!"),
+    });
 
+    return {
+      successful: false,
+      loading: false,
+      message: "",
+      schema,
     };
   },
+  // Methods inspired from: https://www.bezkoder.com/vue-3-authentication-jwt/
+  // and from: https://www.bezkoder.com/vue-refresh-token/
+  computed: {
+    loggedIn() {
+      return this.$store.state.auth.status.loggedIn;
+    },
+  },
+  mounted() {
+    if (this.loggedIn) {
+      this.$router.push("/dashboard");
+    }
+  },
   methods: {
-   createDev: function(username, email, password, firstName, lastName){
-   
-    AXIOS.post('/developer/create', {}, {
-        params: {
-         username: username,
-         email: email,
-         password: password,
-         firstName: firstName,
-         lastName: lastName
-        }})
-    .then(response => {
-      this.devs.push(response.data)
-      // Initialize all variables for the next function call
-      this.errorCreateDev = ''
-      this.newDev.username = ''
-      this.newDev.email = ''
-      this.newDev.password = ''
-      this.newDev.firstName = ''   
-      this.newDev.lastName = '' 
-      
-      this.$router.push('/login');
-    })
-    .catch(e => {
-      var errorMsg = e.response.data.message
-      console.log(errorMsg)
-      this.errorCreateDev = errorMsg
-    })
-   },
-  }
-}
+    handleRegister(user) {
+      this.message = "";
+      this.successful = false;
+      this.loading = true;
+
+      this.$store.dispatch("auth/register", user).then(
+        (data) => {
+          this.message = data.message;
+          this.successful = true;
+          this.loading = false;
+        },
+        (error) => {
+          this.message =
+            (error.response &&
+              error.response.data &&
+              error.response.data.message) ||
+            error.message ||
+            error.toString();
+          this.successful = false;
+          this.loading = false;
+        }
+      );
+    },
+  },
+};
 </script>
 
 <style scoped>
-
-
-.containers{
-      height: 100vh;
-  width: 100vw;
-	background: linear-gradient(-45deg, #9fffff, #3cb9e7, #c6e8ff, rgb(35, 213, 174));
-	background-size: 400% 400%;
-	animation: gradient 15s ease infinite;
-    display: flex;
-  flex-direction:column;
-  width: 100%;
+.container {
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
 }
 
-@keyframes gradient {
-	0% {
-		background-position: 0% 50%;
-	}
-	50% {
-		background-position: 100% 50%;
-	}
-	100% {
-		background-position: 0% 50%;
-	}
+.hey {
+  padding: 30px;
+  width: fit-content;
+  background-color: white;
+  margin-top: 100px;
+  border: 1px solid rgb(183, 183, 183);
+  border-radius: 5px;
+  padding-top: 30px;
+  padding-bottom: 0px;
+  margin-bottom: 50px;
 }
 
-
-.row{
-    background-color:white;
-    padding: 30px;
-    width: 500px;
-    border: 1px solid rgb(183, 183, 183);
-    border-radius: 5px;
-    padding-top: 50px;
-}
-h3{
-    margin-bottom: 40px;
+.mb-12 {
+  margin-bottom: 20px !important;
 }
 
+.form-group {
+  font-size: 15px;
+  margin-bottom: -50px;
+}
+
+.form-group label {
+  margin-bottom: 5px;
+}
+
+.error-feedback {
+  color: red;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+}
 </style>

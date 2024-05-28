@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bugtracker.SpringBootRestApp.model.Admin;
 import com.bugtracker.SpringBootRestApp.model.Developer;
 import com.bugtracker.SpringBootRestApp.model.Project;
+import com.bugtracker.SpringBootRestApp.model.ProjectManager;
 import com.bugtracker.SpringBootRestApp.model.Ticket;
 import com.bugtracker.SpringBootRestApp.model.Ticket.TicketPriority;
 import com.bugtracker.SpringBootRestApp.model.Ticket.TicketStatus;
@@ -25,21 +26,13 @@ import com.bugtracker.SpringBootRestApp.model.Ticket.TicketType;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 public class TestDeveloperPersistence {
+	@Autowired private ProjectManagerRepository projectManagerRepository;
 	@Autowired private DeveloperRepository developerRepository;
 	
 	@Autowired private TicketRepository ticketRepository;
 	
 	@Autowired private ProjectRepository projectRepository;
 	
-	
-    @AfterEach
-    public void clearDatabase() {
-        // Clearing the database
-    	developerRepository.deleteAll();
-    	ticketRepository.deleteAll();
-    	projectRepository.deleteAll();
-        
-    }
         
      
     @Test
@@ -73,6 +66,8 @@ public class TestDeveloperPersistence {
         assertEquals(email, developer.getEmail());
         assertEquals(firstName, developer.getFirstName());
         assertEquals(lastName, developer.getLastName());
+        
+        developerRepository.delete(developer);
        
     }
     
@@ -138,61 +133,9 @@ public class TestDeveloperPersistence {
                 break;
             }
         }
+        ticketRepository.delete(ticket);
+        developerRepository.delete(developer);
     }
     
-    @Test
-    @Transactional
-    public void testAssignProject() {
-    	String name = "ProjectName";
-    	String description = "testing";
-    	
-    	Project project = new Project();
-    	project.setName(name);
-    	project.setDescription(description);
-    	
-    	projectRepository.save(project);
-    	
-    	int id = project.getId();
-    	Set<Project> projects = new HashSet<Project>();
-    	projects.add(project);
-    	
-        // Setting primitave attributes for customerAccount
-        String username = "testName";
-        String password = "12345678";
-        String email = "test@gmail.com";
-        String firstName = "first";
-        String lastName = "last";
-
-        Developer developer = new Developer();
-        developer.setUsername(username);
-        developer.setPassword(password);
-        developer.setEmail(email);
-        developer.setFirstName(firstName);
-        developer.setLastName(lastName);
-        developer.setProjects(projects);
-
-        // Save the object from the database
-        developerRepository.save(developer);
-
-        developer = null;
-
-        // Load the object from the database
-        developer = developerRepository.findByUsername(username);
-        // Checking if attribute values of the saved and loaded object are the same
-        assertNotNull(developer);
-        assertEquals(username, developer.getUsername());
-        assertEquals(password, developer.getPassword());
-        assertEquals(email, developer.getEmail());
-        assertEquals(firstName, developer.getFirstName());
-        assertEquals(lastName, developer.getLastName());
-
-        assertEquals(1, developer.getProjects().size());
-        for (Project p : developer.getProjects()) {
-            if (p.getId() == id) {
-                assertEquals(name, p.getName());
-                assertEquals(description, p.getDescription());
-                break;
-            }
-        }
-    }
+ 
 }

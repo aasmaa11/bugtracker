@@ -27,13 +27,6 @@ import org.junit.jupiter.api.Test;
 public class TestAdminPersistence {
 	@Autowired private AdminRepository adminRepository;
 	
-	
-    @AfterEach
-    public void clearDatabase() {
-        // Clearing the database
-    	adminRepository.deleteAll();
-        
-    }
         
      
     @Test
@@ -67,6 +60,8 @@ public class TestAdminPersistence {
         assertEquals(email, admin.getEmail());
         assertEquals(firstName, admin.getFirstName());
         assertEquals(lastName, admin.getLastName());
+        
+        adminRepository.delete(admin);
        
     }
 

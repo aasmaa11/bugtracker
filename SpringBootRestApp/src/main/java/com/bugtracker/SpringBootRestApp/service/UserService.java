@@ -268,28 +268,41 @@ public class UserService {
         if (!userRepository.existsByUsername(username)) {
             throw new IllegalArgumentException("UserAccount does not exist!");
         }
+        String errorMessage = "";
+        if(newFirstName == null || newFirstName.isEmpty()) {
+        	errorMessage += "New first name cannot be empty. ";
+        }
+        if(newLastName == null || newLastName.isEmpty()) {
+        	errorMessage += "New last name cannot be empty. ";
+        }
+        if(newUsername == null || newUsername.isEmpty()) {
+        	errorMessage += "New username cannot be empty. ";
+        }
+        if(newEmail == null || newEmail.isEmpty()) {
+        	errorMessage += "New email cannot be empty. ";
+        }
+        
+        errorMessage = errorMessage.trim();
+        if (errorMessage.length() > 0) {
+            throw new IllegalArgumentException(errorMessage);
+        }
+        
         UserAccount user = userRepository.findByUsername(username);
-        if(newUsername != null) {
-        	if(!username.equals(newUsername)) {
-                if (userRepository.existsByUsername(newUsername)) {
-                    throw new IllegalArgumentException("Username already exists");
-                }else {
-                	user.setUsername(newUsername);;
-                }  
-        	}
-        }
-        if(newEmail != null) {
-        	user.setEmail(newEmail);        
-        }
-        if(newPassword != null) {
+    	if(!username.equals(newUsername)) {
+            if (userRepository.existsByUsername(newUsername)) {
+                throw new IllegalArgumentException("Username already exists");
+            }else {
+            	user.setUsername(newUsername);;
+            }  
+    	}
+    	user.setEmail(newEmail); 
+    	user.setFirstName(newFirstName);
+    	user.setLastName(newLastName); 
+    	
+        if(newPassword != null && !newPassword.isEmpty()) {
         	user.setPassword(newPassword);
         }
-        if(newFirstName != null) {
-        	user.setFirstName(newFirstName);        
-        }
-        if(newLastName != null) {
-        	user.setLastName(newLastName);       
-        }
+    
         userRepository.save(user);
         return user;
         
@@ -341,7 +354,9 @@ public class UserService {
 
 	@Transactional
 	public List<UserAccount> getAllUsers() {
-		return toList(userRepository.findAll());
+		List<UserAccount> users = toList(userRepository.findAll());
+		System.out.println("got all userrrs");
+		return users;
 	}
 	
 	

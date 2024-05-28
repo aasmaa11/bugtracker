@@ -28,14 +28,6 @@ public class TestTicketAttachmentPersistence {
 	@Autowired private TicketRepository ticketRepository;
 	
 	
-    @AfterEach
-    public void clearDatabase() {
-        // Clearing the database
-    	ticketAttachmentRepository.deleteAll();
-    	ticketRepository.deleteAll();
-    	userAccountRepository.deleteAll();
-        
-    }
         
      
     @Test
@@ -59,6 +51,8 @@ public class TestTicketAttachmentPersistence {
         assertNotNull(ticketAttachment);
         assertEquals(file, ticketAttachment.getFile());
         assertEquals(notes, ticketAttachment.getNotes());
+        
+        ticketAttachmentRepository.delete(ticketAttachment);
        
     }
     
@@ -105,7 +99,8 @@ public class TestTicketAttachmentPersistence {
         assertEquals(priority, ticketAttachment.getTicket().getPriority());
         assertEquals(status, ticketAttachment.getTicket().getStatus());
         assertEquals(type, ticketAttachment.getTicket().getType());
-       
+        ticketRepository.delete(ticket);
+        ticketAttachmentRepository.delete(ticketAttachment);
     }
     
     @Test
@@ -151,6 +146,8 @@ public class TestTicketAttachmentPersistence {
         assertEquals(email, ticketAttachment.getCreator().getEmail());
         assertEquals(firstName, ticketAttachment.getCreator().getFirstName());
         assertEquals(lastName, ticketAttachment.getCreator().getLastName());
+        userAccountRepository.delete(developer);
+        ticketAttachmentRepository.delete(ticketAttachment);
        
     }
 }

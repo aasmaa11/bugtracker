@@ -32,15 +32,7 @@ public class TestProjectPersistence {
 	@Autowired private DeveloperRepository developerRepository;
 	@Autowired private ProjectManagerRepository projectManagerRepository;
 	
-	
-    @AfterEach
-    public void clearDatabase() {
-        // Clearing the database
-    	projectRepository.deleteAll();
-    	ticketRepository.deleteAll();
-    	developerRepository.deleteAll();
-    	projectManagerRepository.deleteAll();        
-    }
+
         
      
     @Test
@@ -65,6 +57,8 @@ public class TestProjectPersistence {
         assertNotNull(project);
         assertEquals(name, project.getName());
         assertEquals(description, project.getDescription());
+        
+        projectRepository.delete(project);
        
     }
     
@@ -121,6 +115,9 @@ public class TestProjectPersistence {
                 break;
             }
         }
+        
+        ticketRepository.delete(ticket);
+        projectRepository.delete(project);
     }
     
     
@@ -142,7 +139,7 @@ public class TestProjectPersistence {
 
         // Save the object from the database
         developerRepository.save(developer);
-        int developerId = developer.getId();
+        Long developerId = developer.getId();
     	Set<Developer> developers = new HashSet<Developer>();
     	developers.add(developer);
     	
@@ -179,6 +176,10 @@ public class TestProjectPersistence {
                 break;
             }
         }
+        
+        developerRepository.delete(developer);
+        
+        projectRepository.delete(project);
     }
     
     
@@ -227,6 +228,9 @@ public class TestProjectPersistence {
         assertEquals(email, project.getProjectManager().getEmail());
         assertEquals(firstName, project.getProjectManager().getFirstName());
         assertEquals(lastName, project.getProjectManager().getLastName());
+        
+        projectManagerRepository.delete(projectManager);
+        projectRepository.delete(project);
 
 
     }

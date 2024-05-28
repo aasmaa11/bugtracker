@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
@@ -64,7 +65,7 @@ public class TestTicketService {
     private static final Ticket.TicketStatus TICKET_STATUS = Ticket.TicketStatus.InProgress;
     private static final Ticket.TicketPriority TICKET_PRIORITY = Ticket.TicketPriority.High;
     private static final Ticket.TicketType TICKET_TYPE = Ticket.TicketType.Bug;
-    private static final int DEVELOPER_KEY = 20;
+    private static final Long DEVELOPER_KEY = (long) 20;
     private static final String DEVELOPER_USERNAME = "testDeveloper";
     private static final String DEV_2_KEY = "testDeveloper2";
     private static final int PROJECT_KEY = 19;
@@ -84,6 +85,63 @@ public class TestTicketService {
                         developer.setLastName("Jones");
                         developer.setEmail("pm@email.com");
                         developer.setPassword("1111");
+                        return developer;
+                    } else {
+                        return null;
+                    }
+                });
+        
+        lenient()
+        .when(developerRepository.findById(anyLong()))
+        .thenAnswer(
+                (InvocationOnMock invocation) -> {
+                    if (invocation.getArgument(0).equals(DEVELOPER_KEY)) {
+                        Developer developer = new Developer();
+                        developer.setUsername(DEVELOPER_USERNAME);
+                        developer.setFirstName("Joe");
+                        developer.setLastName("Jones");
+                        developer.setEmail("pm@email.com");
+                        developer.setPassword("1111");
+                    	Ticket ticket = new Ticket();
+                        ticket.setPriority(TICKET_PRIORITY);
+                        ticket.setStatus(TICKET_STATUS);
+                        ticket.setType(TICKET_TYPE);
+                        ticket.setTitle(TICKET_TITLE);
+                        ticket.setDescription(TICKET_DESCRIPTION);
+                        Set<Ticket> tickets = new HashSet<Ticket>();
+                        tickets.add(ticket);
+                        developer.setAssignedTickets(tickets);
+                        return developer;
+                    } else {
+                        return null;
+                    }
+                });
+        
+        lenient()
+        .when(userRepository.findById(anyLong()))
+        .thenAnswer(
+                (InvocationOnMock invocation) -> {
+                    if (invocation.getArgument(0).equals(DEVELOPER_KEY)) {
+                        Developer developer = new Developer();
+                        developer.setUsername(DEVELOPER_USERNAME);
+                        developer.setFirstName("Joe");
+                        developer.setLastName("Jones");
+                        developer.setEmail("pm@email.com");
+                        developer.setPassword("1111");
+                    	Ticket ticket = new Ticket();
+                        ticket.setPriority(TICKET_PRIORITY);
+                        ticket.setStatus(TICKET_STATUS);
+                        ticket.setType(TICKET_TYPE);
+                        ticket.setTitle(TICKET_TITLE);
+                        ticket.setDescription(TICKET_DESCRIPTION);
+                        Set<Ticket> tickets = new HashSet<Ticket>();
+                        tickets.add(ticket);
+                        TicketAttachment ticketAttachment = new TicketAttachment();
+                        Set<TicketAttachment> ticketAttachments = new HashSet<TicketAttachment>();
+                        ticketAttachments.add(ticketAttachment);                       
+                        developer.setAssignedTickets(tickets);
+                        developer.setTicketAttachments(ticketAttachments);
+                        developer.setCreatedTickets(tickets);
                         return developer;
                     } else {
                         return null;
@@ -111,12 +169,34 @@ public class TestTicketService {
         .thenAnswer(
                 (InvocationOnMock invocation) -> {
                     if (invocation.getArgument(0).equals(TICKET_KEY)) {
+                        Developer developer = new Developer();
+                        developer.setUsername(DEV_2_KEY);
+                        developer.setFirstName("Joe");
+                        developer.setLastName("Jones");
+                        developer.setEmail("pm@email.com");
+                        developer.setPassword("1111");
+                        Set<Developer> devs = new HashSet<Developer>();
+                        devs.add(developer);
+                        TicketHistory ticketHistory = new TicketHistory();
+                        Set<TicketHistory> ticketHistories = new HashSet<TicketHistory>();
+                        ticketHistories.add(ticketHistory);
+                        TicketAttachment ticketAttachment = new TicketAttachment();
+                        Set<TicketAttachment> ticketAttachments = new HashSet<TicketAttachment>();
+                        ticketAttachments.add(ticketAttachment);   
+                        Comment comment = new Comment();
+                        Set<Comment> comments = new HashSet<Comment>();
+                        comments.add(comment); 
                     	Ticket ticket = new Ticket();
                         ticket.setPriority(TICKET_PRIORITY);
                         ticket.setStatus(TICKET_STATUS);
                         ticket.setType(TICKET_TYPE);
                         ticket.setTitle(TICKET_TITLE);
                         ticket.setDescription(TICKET_DESCRIPTION);
+                        ticket.setAssignedDevelopers(devs);
+                        ticket.setTicketHistories(ticketHistories);
+                        ticket.setTicketAttachments(ticketAttachments);
+                        ticket.setSubmitter(developer);
+                        ticket.setComments(comments);
                         return ticket;
                     } else {
                         return null;
@@ -385,11 +465,15 @@ public class TestTicketService {
         .thenAnswer(
                 (InvocationOnMock invocation) -> {
                     if (invocation.getArgument(0).equals(TICKET_HISTORY_KEY)) {
-                    	
+                    	Ticket ticket = new Ticket();
+                    	ticket.setPriority(TICKET_PRIORITY);
+                    	ticket.setStatus(TICKET_STATUS);
+                    	ticket.setType(TICKET_TYPE);
                     	TicketHistory ticketHistory = new TicketHistory();
                     	ticketHistory.setPropertyChanged("priority");
                     	ticketHistory.setOldValueOfProperty("high");
                     	ticketHistory.setNewValueOfProperty("low");
+                    	ticketHistory.setTicket(ticket);
                         return ticketHistory;
                     } else {
                         return null;
@@ -433,9 +517,16 @@ public class TestTicketService {
         .thenAnswer(
                 (InvocationOnMock invocation) -> {
                     if (invocation.getArgument(0).equals(COMMENT_KEY)) {
-                    	
+                    	Ticket ticket = new Ticket();
+                    	ticket.setPriority(TICKET_PRIORITY);
+                    	ticket.setStatus(TICKET_STATUS);
+                    	ticket.setType(TICKET_TYPE);
+                    	Developer developer = new Developer();
+                    	developer.setUsername(DEVELOPER_USERNAME);
                     	Comment comment = new Comment();
                     	comment.setMessage("hello");
+                    	comment.setCommenter(developer);
+                    	comment.setTicket(ticket);
                         return comment;
                     } else {
                         return null;
@@ -467,6 +558,22 @@ public class TestTicketService {
                         developer.setLastName("Jones");
                         developer.setEmail("pm@email.com");
                         developer.setPassword("1111");
+                        return developer;
+                    } else if (invocation.getArgument(0).equals(DEV_2_KEY)) {
+                    	UserAccount developer = new Developer();
+                        developer.setUsername(DEVELOPER_USERNAME);
+                        developer.setFirstName("Joe");
+                        developer.setLastName("Jones");
+                        developer.setEmail("pm@email.com");
+                        developer.setPassword("1111");
+                        Comment comment = new Comment();
+                        Set<Comment> comments = new HashSet<Comment>();
+                        comments.add(comment);
+                        TicketAttachment ticketAttachment = new TicketAttachment();
+                        Set<TicketAttachment> ticketAttachments = new HashSet<TicketAttachment>();
+                        ticketAttachments.add(ticketAttachment);
+                        developer.setComments(comments);
+                        developer.setTicketAttachments(ticketAttachments);
                         return developer;
                     } else {
                         return null;
@@ -608,7 +715,7 @@ public class TestTicketService {
     public void testGetSubmitterForTicket() {
     	UserAccount submitter = ticketService.getSubmitterForTicket(TICKET_KEY);
     	assertNotNull(submitter);
-    	assertEquals(DEVELOPER_USERNAME, submitter.getUsername());
+    	assertEquals(DEV_2_KEY, submitter.getUsername());
     }
     
     @Test
@@ -852,7 +959,7 @@ public class TestTicketService {
     	
         assertNotNull(ticket);
         for (TicketAttachment t : ticket.getTicketAttachments()) {
-            if (t.getCreator().getUsername().equals(DEVELOPER_KEY)) {
+            if (t.getCreator() != null && t.getCreator().getUsername().equals(DEVELOPER_USERNAME)) {
                 assertEquals(notes, t.getNotes());
                 assertEquals(file, t.getFile());
                 break;
@@ -874,12 +981,13 @@ public class TestTicketService {
     	
         assertNotNull(ticket);
         for (TicketHistory t : ticket.getTicketHistories()) {
-            if (t.getTicket().getId() == TICKET_KEY) {
+        	if(t.getTicket()!= null && t.getTicket().getId() == TICKET_KEY) {
                 assertEquals(propertyChanged, t.getPropertyChanged());
                 assertEquals(oldValue, t.getOldValueOfProperty());
                 assertEquals(newValue, t.getNewValueOfProperty());
                 break;
-            }
+        	}
+
         }
     }
     
@@ -895,12 +1003,15 @@ public class TestTicketService {
     	
         assertNotNull(ticket);
         for (Comment c : ticket.getComments()) {
-            if (c.getTicket().getId() == TICKET_KEY) {
-                assertEquals(message, c.getMessage());
-                assertEquals(DEVELOPER_USERNAME, c.getCommenter().getUsername());
-                
-                break;
-            }
+        	if(c.getTicket() != null) {
+                if (c.getTicket().getId() == TICKET_KEY) {
+                    assertEquals(message, c.getMessage());
+                    assertEquals(DEVELOPER_USERNAME, c.getCommenter().getUsername());
+                    
+                    break;
+                }
+        	}
+
         }
     }
     

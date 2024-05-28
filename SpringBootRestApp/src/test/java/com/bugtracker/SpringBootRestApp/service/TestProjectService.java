@@ -26,10 +26,12 @@ import org.mockito.stubbing.Answer;
 import com.bugtracker.SpringBootRestApp.dao.DeveloperRepository;
 import com.bugtracker.SpringBootRestApp.dao.ProjectManagerRepository;
 import com.bugtracker.SpringBootRestApp.dao.ProjectRepository;
+import com.bugtracker.SpringBootRestApp.dao.TicketRepository;
 import com.bugtracker.SpringBootRestApp.dao.UserAccountRepository;
 import com.bugtracker.SpringBootRestApp.model.Developer;
 import com.bugtracker.SpringBootRestApp.model.Project;
 import com.bugtracker.SpringBootRestApp.model.ProjectManager;
+import com.bugtracker.SpringBootRestApp.model.Ticket;
 
 @ExtendWith(MockitoExtension.class)
 public class TestProjectService {
@@ -38,6 +40,7 @@ public class TestProjectService {
 	@Mock private ProjectManagerRepository projectManagerDao;
 	@Mock private DeveloperRepository developerDao;
 	@Mock private UserAccountRepository userAccountDao;
+	@Mock private TicketRepository ticketDao;
 	
     @InjectMocks private ProjectService projectService;
     @InjectMocks private UserService userService;
@@ -51,11 +54,27 @@ public class TestProjectService {
     private static final int TICKET_KEY = 70;
     private static final int PROJECT_KEY = 123;
     private static final int PROJECT_KEY_2 = 124;
+    private static final int PROJECT_KEY_10 = 300;
     private static final String PROJECT_NAME = "name 1";
     private static final String PROJECT_DESCRIPTION = "description 1";
 
     @BeforeEach
     public void setMockOutput() {
+        lenient()
+        .when(ticketDao.findById(anyInt()))
+        .thenAnswer(
+                (InvocationOnMock invocation) -> {
+                    if (invocation.getArgument(0).equals(TICKET_KEY)) {
+                    	Ticket ticket = new Ticket();
+                        Project project = new Project();
+                        project.setName(PROJECT_NAME);
+                        project.setDescription(PROJECT_DESCRIPTION);
+                        ticket.setProject(project);
+                        return ticket;
+                    } else {
+                        return null;
+                    }
+                });
         lenient()
                 .when(projectManagerDao.findByUsername(anyString()))
                 .thenAnswer(
@@ -103,7 +122,15 @@ public class TestProjectService {
                         project.setName("project 1");
                         project.setDescription("description 1");
                         return project;
-                    } else if(invocation.getArgument(0).equals(PROJECT_KEY_2)) {
+                    } else if(invocation.getArgument(0).equals(PROJECT_KEY_10)){
+                        Project project = new Project();
+                        ProjectManager projectManager = new ProjectManager();
+                        projectManager.setUsername(PROJECT_MANAGER_KEY);
+                        project.setName("project 1");
+                        project.setDescription("description 1");
+                        project.setProjectManager(projectManager);
+                        return project;
+                    }else if(invocation.getArgument(0).equals(PROJECT_KEY_2)) {
                         Developer developer = new Developer();
                         developer.setUsername(DEVELOPER_KEY);
                         developer.setFirstName("Joe");
@@ -318,7 +345,7 @@ public class TestProjectService {
         // Test equality
         ProjectManager projectManager = null;
         try {
-            projectManager = projectService.getProjectManagerForProject(PROJECT_KEY_2);
+            projectManager = projectService.getProjectManagerForProject(PROJECT_KEY_10);
         } catch (IllegalArgumentException e) {
             fail();
         }
@@ -333,16 +360,11 @@ public class TestProjectService {
 		String password = "1111";
 		String firstName = "Joe";
 		String lastName = "Jones";
-
-        try {
-        	projectService.addDeveloperToProject(PROJECT_KEY, DEVELOPER_KEY);
-        } catch (IllegalArgumentException e) {
-            fail();
-        }
+		
         // Test equality
         List<Developer> devs = null;
         try {
-            devs = projectService.getAllAssignedDevelopersForProject(PROJECT_KEY);
+            devs = projectService.getAllAssignedDevelopersForProject(PROJECT_KEY_2);
         } catch (IllegalArgumentException e) {
             fail();
         }

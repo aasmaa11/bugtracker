@@ -349,7 +349,7 @@ public class TestUserService {
 		String firstName = "Jake";
 		String lastName = "Jake";
     	try {
-    		user = userService.modifyUser(EXISTING_ADMIN_KEY, null, email, password, firstName, lastName);
+    		user = userService.modifyUser(EXISTING_ADMIN_KEY, EXISTING_ADMIN_KEY, email, password, firstName, lastName);
     		
     	} catch (IllegalArgumentException e) {
             fail();

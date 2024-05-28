@@ -39,7 +39,7 @@ public abstract class UserAccount
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator="idGenerator")
 	@SequenceGenerator(name="mydb", sequenceName="idGenerator")
-	private int id;
+	private Long id;
 
   //User Associations
   @OneToMany

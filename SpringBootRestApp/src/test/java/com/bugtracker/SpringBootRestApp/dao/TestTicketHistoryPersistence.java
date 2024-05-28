@@ -25,14 +25,6 @@ public class TestTicketHistoryPersistence {
 	
 	@Autowired private TicketRepository ticketRepository;
 	
-	
-    @AfterEach
-    public void clearDatabase() {
-        // Clearing the database
-    	ticketHistoryRepository.deleteAll();
-    	ticketRepository.deleteAll();
-        
-    }
         
      
     @Test
@@ -59,7 +51,7 @@ public class TestTicketHistoryPersistence {
         assertEquals(propertyChanged, ticketHistory.getPropertyChanged());
         assertEquals(oldValueOfProperty, ticketHistory.getOldValueOfProperty());
         assertEquals(newValueOfProperty, ticketHistory.getNewValueOfProperty());
-       
+        ticketHistoryRepository.delete(ticketHistory);
     }
     
     @Test
@@ -108,6 +100,8 @@ public class TestTicketHistoryPersistence {
         assertEquals(priority, ticketHistory.getTicket().getPriority());
         assertEquals(status, ticketHistory.getTicket().getStatus());
         assertEquals(type, ticketHistory.getTicket().getType());
-       
+        ticketHistoryRepository.delete(ticketHistory);
+        
+		  ticketRepository.delete(ticket);
     }
 }

@@ -6,7 +6,7 @@ import com.bugtracker.SpringBootRestApp.model.Admin;
 public interface AdminRepository extends CrudRepository<Admin, String>{
     Admin findByUsername(String username);
     
-    Admin findById(int id);
+    Admin findById(Long id);
 
     Admin findByEmail(String email);
 

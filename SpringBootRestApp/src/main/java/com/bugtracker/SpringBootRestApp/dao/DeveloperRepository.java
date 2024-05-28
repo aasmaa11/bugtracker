@@ -11,7 +11,7 @@ public interface DeveloperRepository extends CrudRepository<Developer, String>{
 	
 	Developer findByEmail(String email);
 	
-	Developer findById(int id);
+	Developer findById(Long id);
 	
 	List<Developer> findByAssignedTicketsId(int assignedTicketsId);
 	

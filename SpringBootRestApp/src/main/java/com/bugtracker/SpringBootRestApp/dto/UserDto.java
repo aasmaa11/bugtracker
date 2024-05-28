@@ -21,7 +21,7 @@ public class UserDto {
 	private String password;
 	private String firstName;
 	private String lastName;
-	private int id;
+	private Long id;
 	private List<CommentDto> comments;
 	private List<TicketDto> createdTickets;
 	private List<TicketAttachmentDto> ticketAttachments;

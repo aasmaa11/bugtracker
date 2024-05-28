@@ -33,14 +33,6 @@ public class TestUserPersistence {
 	@Autowired private TicketRepository ticketRepository;
 	@Autowired private TicketAttachmentRepository ticketAttachmentRepository;
 	
-    @AfterEach
-    public void clearDatabase() {
-        // Clearing the database
-    	userAccountRepository.deleteAll();
-    	commentRepository.deleteAll();
-    	ticketRepository.deleteAll();
-    	ticketAttachmentRepository.deleteAll();
-    }
         
      
     @Test
@@ -74,7 +66,7 @@ public class TestUserPersistence {
         assertEquals(email, developer.getEmail());
         assertEquals(firstName, developer.getFirstName());
         assertEquals(lastName, developer.getLastName());
-       
+        userAccountRepository.delete(developer);
     }
     
     @Test
@@ -129,6 +121,9 @@ public class TestUserPersistence {
                 break;
             }
         }
+        
+        commentRepository.delete(comment);
+        userAccountRepository.delete(developer);
     }
     
     @Test
@@ -194,6 +189,9 @@ public class TestUserPersistence {
                 break;
             }
         }
+        
+        ticketRepository.delete(ticket);
+        userAccountRepository.delete(developer);
     }
     
     @Test
@@ -248,5 +246,8 @@ public class TestUserPersistence {
                 break;
             }
         }
+        
+        ticketAttachmentRepository.delete(ticketAttachment);
+        userAccountRepository.delete(developer);
     }
 }

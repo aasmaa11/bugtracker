@@ -37,17 +37,6 @@ public class TestCommentPersistence {
 	@Autowired private UserAccountRepository userAccountRepository;
 	
 	
-	
-    @AfterEach
-    public void clearDatabase() {
-        // Clearing the database
-    	commentRepository.deleteAll();
-    	ticketRepository.deleteAll();
-    	
-    	userAccountRepository.deleteAll();
-    	
-    }
-        
      
     @Test
     @Transactional
@@ -68,6 +57,8 @@ public class TestCommentPersistence {
         // Checking if attribute values of the saved and loaded object are the same
         assertNotNull(comment);
         assertEquals(message, comment.getMessage());
+        
+        commentRepository.delete(comment);
        
     }
 
@@ -117,6 +108,9 @@ public class TestCommentPersistence {
         assertEquals(priority, comment.getTicket().getPriority());
         assertEquals(status, comment.getTicket().getStatus());
         assertEquals(type, comment.getTicket().getType());
+        
+        ticketRepository.delete(ticket);
+        commentRepository.delete(comment);
     }
     
     @Test
@@ -161,5 +155,9 @@ public class TestCommentPersistence {
         assertEquals(email, comment.getCommenter().getEmail());
         assertEquals(firstName, comment.getCommenter().getFirstName());
         assertEquals(lastName, comment.getCommenter().getLastName());
+        
+        userAccountRepository.delete(developer);
+        
+        commentRepository.delete(comment);
     }
 }

@@ -1,109 +1,148 @@
 <template>
-<div class="containers">
-<div class="row">
-<h3>Log in as a developer</h3>
-<div class="mb-3">
-  <label for="formGroupExampleInput" class="form-label">Username</label>
-  <input type="text" v-model="devUsername" class="form-control" id="formGroupExampleInput" placeholder="">
-</div>
-<div class="mb-3">
-  <label for="formGroupExampleInput2" class="form-label">Password</label>
-  <input type="text"  v-model="devPassword" class="form-control" id="formGroupExampleInput2" placeholder="">
-</div>
-  <div class="mb-3">
-    <button type="submit" class="btn btn-primary"
-    v-on:click="logIn(devUsername, devPassword)">Log in</button>
-  </div>
-  </div>
+  <NavBar />
+  <div class="container">
+    <div class="hey">
+      <div class="header">
+        <h3>Log in</h3>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <Form
+            class="d-flex flex-column"
+            @submit="handleLogin"
+            :validation-schema="schema"
+          >
+            <div class="form-group mb-12">
+              <label for="username">Username</label>
+              <Field name="username" type="text" class="form-control" />
+              <ErrorMessage name="username" class="error-feedback" />
+            </div>
+            <div class="form-group mb-12">
+              <label for="password">Password</label>
+              <Field name="password" type="password" class="form-control" />
+              <ErrorMessage name="password" class="error-feedback" />
+            </div>
+
+            <div class="form-group mb-12">
+              <button class="btn btn-primary btn-block" :disabled="loading">
+                <span
+                  v-show="loading"
+                  class="spinner-border spinner-border-sm"
+                ></span>
+                <span>Login</span>
+              </button>
+            </div>
+
+            <div class="form-group mb-12">
+              <div v-if="message" class="alert alert-danger" role="alert">
+                {{ message }}
+              </div>
+            </div>
+          </Form>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios'
-var backendUrl = 'http://localhost:8080'
-
-var AXIOS = axios.create({
-  baseURL: backendUrl
-})
+import { Form, Field, ErrorMessage } from "vee-validate";
+import * as yup from "yup";
+import NavBar from "./NavBar.vue";
 
 export default {
-  name: 'LoginPage',
-  data () {
+  name: "LoginPage",
+  components: {
+    NavBar,
+    Form,
+    Field,
+    ErrorMessage,
+  },
+  data() {
+    const schema = yup.object().shape({
+      username: yup.string().required("Username is required!"),
+      password: yup.string().required("Password is required!"),
+    });
     return {
-      item:'',
-      devUsername:'',
-      devPassword:'',
-      errorLogin:'',
-      response: []
+      loading: false,
+      message: "",
+      schema,
+    };
+  },
+  // Methods inspired from: https://www.bezkoder.com/vue-3-authentication-jwt/
+  // and from: https://www.bezkoder.com/vue-refresh-token/
+  computed: {
+    loggedIn() {
+      return this.$store.state.auth.status.loggedIn;
+    },
+  },
+  created() {
+    if (this.loggedIn) {
+      this.$router.push("/dashboard");
     }
   },
 
   methods: {
+    handleLogin(user) {
+      this.loading = true;
 
-   logIn: function(username, password){
-   
-    AXIOS.get('/developer/'.concat(username))
-    .then(response => {
-      if(password.localeCompare(response.data.password) == 0){
-        let token = username;
-        localStorage.setItem('token', token);
-        this.$router.push('/dashboard');
-      }else{
-        
-        this.errorLogin="Wrong password";
-      }
-      
-    })
-    .catch(e => {
-      this.errorLogin = e
-      var errorMsg = e.response.data.message
-      console.log(errorMsg)
-      
-    })
-   },
-  }
-}
+      this.$store.dispatch("auth/login", user).then(
+        () => {
+          this.$router.push("/dashboard");
+        },
+        (error) => {
+          this.loading = false;
+          this.message =
+            (error.response &&
+              error.response.data &&
+              error.response.data.message) ||
+            error.message ||
+            error.toString();
+        }
+      );
+    },
+  },
+};
 </script>
 
 <style scoped>
-
-
-.containers{
-      height: 100vh;
-  width: 100vw;
-	background: linear-gradient(-45deg, #9fffff, #3cb9e7, #c6e8ff, rgb(35, 213, 174));
-	background-size: 400% 400%;
-	animation: gradient 15s ease infinite;
-    display: flex;
-  flex-direction:column;
-  width: 100%;
+.container {
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
 }
 
-@keyframes gradient {
-	0% {
-		background-position: 0% 50%;
-	}
-	50% {
-		background-position: 100% 50%;
-	}
-	100% {
-		background-position: 0% 50%;
-	}
+.hey {
+  padding: 50px;
+  width: fit-content;
+  background-color: white;
+  margin-top: 150px;
+  border: 1px solid rgb(183, 183, 183);
+  border-radius: 5px;
+  padding-top: 30px;
+  padding-bottom: 0px;
+  margin-bottom: 50px;
 }
 
-
-.row{
-    background-color:white;
-    padding: 30px;
-    width: 400px;
-    border: 1px solid rgb(183, 183, 183);
-    border-radius: 5px;
-    padding-top: 50px;
-}
-h3{
-    margin-bottom: 50px;
+.form-group {
+  font-size: 15px;
 }
 
+.form-group label {
+  margin-bottom: 5px;
+}
+
+.error-feedback {
+  color: red;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.mb-12 {
+  margin-bottom: 20px !important;
+}
 </style>

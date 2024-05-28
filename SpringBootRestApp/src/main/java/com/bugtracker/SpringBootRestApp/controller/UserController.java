@@ -5,21 +5,29 @@ import java.util.stream.Collectors;
 
 import com.bugtracker.SpringBootRestApp.dto.*;
 import com.bugtracker.SpringBootRestApp.model.*;
+import com.bugtracker.SpringBootRestApp.security.services.UserDetailsServiceImpl;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bugtracker.SpringBootRestApp.service.AuthenticatedUserService;
 import com.bugtracker.SpringBootRestApp.service.UserService;
 import com.bugtracker.SpringBootRestApp.service.UserService.UserRole;
 
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
+@RequestMapping("/api/test")
 public class UserController {
 	
+	@Autowired private  AuthenticatedUserService authenticatedUserService;
     @Autowired private UserService userService;
     
     @Autowired private DtoConverterRestController converter;
@@ -42,7 +50,7 @@ public class UserController {
      * 
      * 
      * */
-    
+    /*
     @PostMapping(value = {"/admin/create", "/admin/create/"})
     public AdminDto createAdmin(
             @RequestParam("username") String username,
@@ -81,23 +89,33 @@ public class UserController {
     	System.out.println(dev.getId());
         return dev;
     }
-    
+    */
     @GetMapping(value = {"/admin/{username}", "/project/{username}/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public AdminDto getAdmin(@PathVariable("username") String username) {
         return converter.convertToDto(userService.getAdmin(username));
     }
     
     @GetMapping(value = {"/projectmanager/{username}", "/projectmanager/{username}/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ProjectManagerDto getProjectManager(@PathVariable("username") String username) {
         return converter.convertToDto(userService.getProjectManager(username));
     }
     
     @GetMapping(value = {"/developer/{username}", "/developer/{username}/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public DeveloperDto getDeveloper(@PathVariable("username") String username) {
         return converter.convertToDto(userService.getDeveloper(username));
     }
     
-    @GetMapping(value = {"/users", "/users/"})
+    @GetMapping(value = {"/user/{username}", "/user/{username}/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or @authenticatedUserService.isMyPage(#username)")
+    public UserDto getUser(@Param("username") @PathVariable("username") String username) {
+        return converter.convertToDto(userService.getUser(username));
+    }
+    
+    @GetMapping({"/users", "/users/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public List<UserDto> getAllUsers() {
         return userService.getAllUsers().stream()
                 .map(p -> converter.convertToDto(p))
@@ -105,6 +123,7 @@ public class UserController {
     }
     
     @GetMapping(value = {"/developers", "/developers/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public List<DeveloperDto> getAllDevelopers() {
         return userService.getAllDevelopers().stream()
                 .map(p -> converter.convertToDto(p))
@@ -112,6 +131,7 @@ public class UserController {
     }
     
     @GetMapping(value = {"/projectmanagers", "/projectmanagers/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public List<ProjectManagerDto> getAllProjectManagers() {
         return userService.getAllProjectManagers().stream()
                 .map(p -> converter.convertToDto(p))
@@ -120,24 +140,28 @@ public class UserController {
     
     
     @PostMapping(value = {"/admin/delete/{username}", "/project/delete/{username}/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public AdminDto deleteAdmin(@PathVariable("username") String username)
             throws IllegalArgumentException {
         return converter.convertToDto(userService.deleteAdmin(username));
     }
     
     @PostMapping(value = {"/projectmanager/delete/{username}", "/projectmanager/delete/{username}/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ProjectManagerDto deleteProjectManager(@PathVariable("username") String username)
             throws IllegalArgumentException {
         return converter.convertToDto(userService.deleteProjectManager(username));
     }
     
     @PostMapping(value = {"/developer/delete/{username}", "/developer/delete/{username}/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public DeveloperDto deleteDeveloper(@PathVariable("username") String username)
             throws IllegalArgumentException {
         return converter.convertToDto(userService.deleteDeveloper(username));
     }
     
     @GetMapping(value = {"/user/role/{username}", "/user/role/{username}/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public UserRole getUserRole(@PathVariable("username") String username)
             throws IllegalArgumentException {
         return userService.getUserRole(username);
@@ -145,8 +169,9 @@ public class UserController {
     
     
     @PostMapping(value = {"/user/modify/{username}", "/user/modify/{username}/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or @authenticatedUserService.isMyPage(#username)")
     public UserDto modifyUser(
-    		@PathVariable("username") String username,
+    		@Param("username") @PathVariable("username") String username,
             @RequestParam("newUsername") String newUsername,
             @RequestParam("newEmail") String newEmail,
             @RequestParam("newPassword") String newPassword,
@@ -158,6 +183,7 @@ public class UserController {
     }  
     
     @PostMapping(value = {"/user/modifyRole/{username}", "/user/modifyRole/{username}/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public UserDto changeUserRole(
     		@PathVariable("username") String username,
     		@RequestParam("userRole") String userRole)

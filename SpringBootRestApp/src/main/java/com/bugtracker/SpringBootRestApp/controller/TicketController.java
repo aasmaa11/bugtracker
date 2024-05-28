@@ -1,5 +1,7 @@
 package com.bugtracker.SpringBootRestApp.controller;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,13 +12,15 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bugtracker.SpringBootRestApp.service.TicketService;
 
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
+@RequestMapping("/api/test")
 public class TicketController {
     @Autowired private TicketService ticketService;
     
@@ -54,6 +58,7 @@ public class TicketController {
                     .put(Loads.AssignedDevelopers, null);
     
     @PostMapping(value = {"/ticket/createComment/{id}", "/ticket/createComment/{id}/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_PROJECTMANAGER') or hasAuthority('ROLE_DEVELOPER')")
     public TicketDto addCommentToTicket(
     		@PathVariable("id") String id,
             @RequestParam("commenterUsername") String commenterUsername,
@@ -64,6 +69,7 @@ public class TicketController {
     }
     
     @PostMapping(value = {"/ticket/createTa/{id}", "/ticket/createTa/{id}/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_PROJECTMANAGER') or hasAuthority('ROLE_DEVELOPER')")
     public TicketDto addTicketAttachmentToTicket(
     		@PathVariable("id") String id,
             @RequestParam String creatorUsername,
@@ -75,6 +81,7 @@ public class TicketController {
     }
     
     @PostMapping(value = {"/ticket/createHistory/{id}", "/ticket/createHistory/{id}/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_PROJECTMANAGER') or hasAuthority('ROLE_DEVELOPER')")
     public TicketDto addTicketHistoryToTicket(
     		@PathVariable("id") String id,
             @RequestParam String propertyChanged,
@@ -86,6 +93,7 @@ public class TicketController {
     }
     
     @PostMapping(value = {"/ticket/assignDev/{username}", "/ticket/assignDev/{username}/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_PROJECTMANAGER') or hasAuthority('ROLE_DEVELOPER')")
     public TicketDto addAssignedDeveloperToTicket(
     		@PathVariable("username") String username,
             @RequestParam int ticketId)
@@ -95,6 +103,7 @@ public class TicketController {
     }
     
     @PostMapping(value = {"/ticket/assignDevs/{ticketId}", "/ticket/assignDev/{ticketId}/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_PROJECTMANAGER') or hasAuthority('ROLE_DEVELOPER')")
     public TicketDto setAssignedDevelopersToTicket(
     		@PathVariable("ticketId") String ticketId,
     		@RequestParam("devUsernames") List<String> devUsernames)
@@ -105,6 +114,7 @@ public class TicketController {
     
     
     @PostMapping(value = {"/ticket/project/{ticketId}", "/ticket/project/{ticketId}/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_PROJECTMANAGER') or hasAuthority('ROLE_DEVELOPER')")
     public TicketDto setProjectToTicket(
     		@PathVariable("ticketId") String ticketId,
     		@RequestParam("projectId") String projectId)
@@ -115,30 +125,42 @@ public class TicketController {
     }
     
     @PostMapping(value = {"/ticket/delete/{id}", "/ticket/delete/{id}/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_PROJECTMANAGER') or hasAuthority('ROLE_DEVELOPER')")
     public TicketDto deleteTicket(@PathVariable("id") String id)
             throws IllegalArgumentException {
         return converter.convertToDto(ticketService.deleteTicket(Integer.parseInt(id)));
     }
     
     @PostMapping(value = {"/comment/delete/{id}", "/comment/delete/{id}/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_PROJECTMANAGER') or hasAuthority('ROLE_DEVELOPER')")
     public CommentDto deleteComment(@PathVariable("id") String id)
             throws IllegalArgumentException {
         return converter.convertToDto(ticketService.deleteComment(Integer.parseInt(id)), ticketLoads);
     }
     
     @PostMapping(value = {"/ticketattachment/delete/{id}", "/ticketattachment/delete/{id}/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_PROJECTMANAGER') or hasAuthority('ROLE_DEVELOPER')")
     public TicketAttachmentDto deleteTicketAttachment(@PathVariable("id") String id)
             throws IllegalArgumentException {
         return converter.convertToDto(ticketService.deleteTicketAttachment(Integer.parseInt(id)), ticketLoads);
     }
     
     @GetMapping(value = {"/ticket/{id}", "/ticket/{id}/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_PROJECTMANAGER') or hasAuthority('ROLE_DEVELOPER')")
     public TicketDto getTicket(@PathVariable("id") String id) {
         return converter.convertToDto(ticketService.getTicket(Integer.parseInt(id)), ticketLoads);
     }
    
+    @GetMapping(value = {"/tickets", "/tickets/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_PROJECTMANAGER')")
+    public List<TicketDto> getAllTickets() {
+    	return ticketService.getAllTickets().stream()
+                .map(p -> converter.convertToDto(p, ticketLoads))
+                .collect(Collectors.toList());
+    }
     
     @GetMapping(value = {"/ticket/attachments/{id}", "/ticket/attachments/{id}/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_PROJECTMANAGER') or hasAuthority('ROLE_DEVELOPER')")
     public List<TicketAttachmentDto> getAllTicketAttachmentForTicket(@PathVariable("id") String id) {
         return ticketService.getAllTicketAttachmentForTicket(Integer.parseInt(id)).stream()
                 .map(p -> converter.convertToDto(p, ticketLoads))
@@ -146,6 +168,7 @@ public class TicketController {
     }
     
     @GetMapping(value = {"/ticket/history/{id}", "/ticket/history/{id}/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_PROJECTMANAGER') or hasAuthority('ROLE_DEVELOPER')")
     public List<TicketHistoryDto> getAllTicketHistoryForTicket(@PathVariable("id") String id) {
         return ticketService.getAllTicketHistoryForTicket(Integer.parseInt(id)).stream()
                 .map(p -> converter.convertToDto(p, ticketLoads))
@@ -153,6 +176,7 @@ public class TicketController {
     }
     
     @GetMapping(value = {"/ticket/comments/{id}", "/ticket/comments/{id}/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_PROJECTMANAGER') or hasAuthority('ROLE_DEVELOPER')")
     public List<CommentDto> getAllCommentForTicket(@PathVariable("id") String id) {
         return ticketService.getAllCommentForTicket(Integer.parseInt(id)).stream()
                 .map(p -> converter.convertToDto(p, ticketLoads))
@@ -160,6 +184,7 @@ public class TicketController {
     }
     
     @GetMapping(value = {"/project/tickets/{id}", "/project/tickets/{id}/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_PROJECTMANAGER') or hasAuthority('ROLE_DEVELOPER')")
     public List<TicketDto> getAllTicketsForProject(@PathVariable("id") String id) {
         return ticketService.getAllTicketsForProject(Integer.parseInt(id)).stream()
                 .map(p -> converter.convertToDto(p, ticketLoads))
@@ -167,6 +192,7 @@ public class TicketController {
     }
     
     @GetMapping(value = {"/developer/tickets/{username}", "/developer/tickets/{username}/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_PROJECTMANAGER') or hasAuthority('ROLE_DEVELOPER')")
     public List<TicketDto> getAllTicketsForDeveloperWithUsername(@PathVariable("username") String username) {
         return ticketService.getAllTicketsForDeveloperWithUsername(username).stream()
                 .map(p -> converter.convertToDto(p, ticketLoads))
@@ -174,6 +200,7 @@ public class TicketController {
     }
     
     @GetMapping(value = {"/user/tickets/{username}", "/user/tickets/{username}/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_PROJECTMANAGER') or hasAuthority('ROLE_DEVELOPER')")
     public List<TicketDto> getAllTicketsForSubmitterWithUsername(@PathVariable("username") String username) {
         return ticketService.getAllTicketsForSubmitterWithUsername(username).stream()
                 .map(p -> converter.convertToDto(p, ticketLoads))
@@ -181,6 +208,7 @@ public class TicketController {
     }
     
     @GetMapping(value = {"/ticket/developers/{id}", "/ticket/developers/{id}/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_PROJECTMANAGER') or hasAuthority('ROLE_DEVELOPER')")
     public List<DeveloperDto> getAllDevelopersForTicket(@PathVariable("id") String id) {
         return ticketService.getAllDevelopersForTicket(Integer.parseInt(id)).stream()
                 .map(p -> converter.convertToDto(p, ticketLoads))
@@ -189,6 +217,7 @@ public class TicketController {
     
     
     @PostMapping(value = {"/ticket/create", "/ticket/create/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_PROJECTMANAGER') or hasAuthority('ROLE_DEVELOPER')")
     public TicketDto createTicket(
             @RequestParam("title") String title,
             @RequestParam("description") String description,
@@ -236,12 +265,11 @@ public class TicketController {
     	Ticket ticket = ticketService.createTicket(title, description, ticketPriority, ticketStatus, ticketType, null, null, null, Integer.parseInt(projectId), submitterUsername);
 
         TicketDto ticketDto = converter.convertToDto(ticket, ticketLoads);
-    	System.out.println("CHECK DTO INFOOOO");
-        System.out.println(ticketDto.getProject().getProjectManager());
         return ticketDto;
     }
     
     @PostMapping(value = {"/ticket/modify/{id}", "/ticket/modify/{id}/"})
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_PROJECTMANAGER') or hasAuthority('ROLE_DEVELOPER')")
     public TicketDto modifyTicket(
     		@PathVariable("id") String id,
             @RequestParam("title") String title,
