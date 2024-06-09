@@ -39,6 +39,19 @@
               </div>
             </div>
           </Form>
+          <div class="form-group mb-12">
+            <button
+              class="btn btn-primary btn-block"
+              :disabled="loadingDemo"
+              v-on:click="handleLogin(demoUser)"
+            >
+              <span
+                v-show="loadingDemo"
+                class="spinner-border spinner-border-sm"
+              ></span>
+              <span>Login as a demo developer</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -64,7 +77,12 @@ export default {
       password: yup.string().required("Password is required!"),
     });
     return {
+      demoUser: {
+        username: "Demo",
+        password: "demo1234",
+      },
       loading: false,
+      loadingDemo: false,
       message: "",
       schema,
     };
@@ -84,7 +102,11 @@ export default {
 
   methods: {
     handleLogin(user) {
-      this.loading = true;
+      if (user.username == "Demo") {
+        this.loadingDemo = true;
+      } else {
+        this.loading = true;
+      }
 
       this.$store.dispatch("auth/login", user).then(
         () => {

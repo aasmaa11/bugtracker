@@ -321,7 +321,7 @@
               <div class="col-md-8">
                 <button type="button" class="btn btn-primary">
                   <a
-                    href="#/"
+                    target="_blank"
                     v-on:click="checkIfTicketSelected()"
                     data-bs-target="#exampleModal1"
                     >Edit ticket</a
@@ -329,10 +329,12 @@
                 </button>
               </div>
               <div class="col-md-2">
-                <button type="button" class="btn btn-danger">
-                  <a href="#/" v-on:click="deleteTicket(selectedTicketId)"
-                    >Delete ticket</a
-                  >
+                <button
+                  type="button"
+                  v-on:click="deleteTicket(selectedTicketId)"
+                  class="btn btn-danger"
+                >
+                  Delete ticket
                 </button>
               </div>
             </div>
@@ -449,7 +451,7 @@
                       />
                       <button type="button" class="btn btn-primary">
                         <a
-                          href="#/"
+                          target="_blank"
                           v-on:click="
                             addComment(selectedTicketId, commentMessage)
                           "
@@ -677,7 +679,6 @@ export default {
           (response) => {
             // JSON responses are automatically parsed.
             this.data = response.data;
-            console.log(this.data);
           },
           (error) => {
             this.errorGetTickets =
@@ -698,7 +699,6 @@ export default {
           (response) => {
             // JSON responses are automatically parsed.
             this.data = response.data;
-            console.log(this.data);
           },
           (error) => {
             this.errorGetTickets =
@@ -745,7 +745,6 @@ export default {
         (response) => {
           // JSON responses are automatically parsed.
           this.r = response.data;
-          console.log("projectt %o", response.data);
           this.projectDevsCreate = this.r.assignedDevelopers;
         },
         (error) => {

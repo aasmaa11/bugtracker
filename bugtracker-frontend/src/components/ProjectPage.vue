@@ -639,7 +639,7 @@
                   <div class="col-md-8">
                     <button type="button" class="btn btn-primary">
                       <a
-                        href="#/"
+                        target="_blank"
                         v-on:click="checkIfTicketSelected()"
                         data-bs-target="#exampleModal1"
                         >Edit ticket</a
@@ -647,10 +647,12 @@
                     </button>
                   </div>
                   <div class="col-md-2">
-                    <button type="button" class="btn btn-danger">
-                      <a href="#/" v-on:click="deleteTicket(selectedTicketId)"
-                        >Delete ticket</a
-                      >
+                    <button
+                      type="button"
+                      v-on:click="deleteTicket(selectedTicketId)"
+                      class="btn btn-danger"
+                    >
+                      Delete ticket
                     </button>
                   </div>
                 </div>
@@ -780,7 +782,7 @@
                           />
                           <button type="button" class="btn btn-primary">
                             <a
-                              href="#/"
+                              target="_blank"
                               v-on:click="
                                 addComment(selectedTicketId, commentMessage)
                               "
@@ -1026,7 +1028,6 @@ export default {
           (response) => {
             // JSON responses are automatically parsed.
             this.data = response.data.slice(0, 3);
-            console.log(this.data);
           },
           (error) => {
             this.errorGetProjects =
@@ -1046,7 +1047,6 @@ export default {
           (response) => {
             // JSON responses are automatically parsed.
             this.developers = response.data;
-            console.log(this.developers);
           },
           (error) => {
             this.errorGetDevelopers =
@@ -1066,7 +1066,6 @@ export default {
           (response) => {
             // JSON responses are automatically parsed.
             this.projectManagers = response.data;
-            console.log(this.projectManagers);
           },
           (error) => {
             this.errorGetPMs =
@@ -1086,7 +1085,6 @@ export default {
           (response) => {
             // JSON responses are automatically parsed.
             this.data = response.data.slice(0, 3);
-            console.log(this.data);
           },
           (error) => {
             this.errorGetProjects =
@@ -1201,7 +1199,6 @@ export default {
         this.selectedDevs.push(d.username);
         this.selectedDevsObj.push(d);
       }
-      console.log(this.selectedDevs);
       this.selectedPm = project.projectManager;
       this.selectedTickets = project.tickets;
 

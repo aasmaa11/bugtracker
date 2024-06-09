@@ -11,6 +11,7 @@
           height="50"
           class="d-inline-block align-text-top"
         />
+        <div class="username">{{ newParams.username }}</div>
         <span>{{ errorModifyUser }}</span>
         <div class="row">
           <div class="col-md-12">
@@ -32,17 +33,6 @@
               <input
                 type="text"
                 v-model="newParams.lastName"
-                class="form-control"
-                id="formGroupExampleInput2"
-              />
-            </div>
-            <div class="mb-12">
-              <label for="formGroupExampleInput2" class="form-label"
-                >Username</label
-              >
-              <input
-                type="text"
-                v-model="newParams.username"
                 class="form-control"
                 id="formGroupExampleInput2"
               />
@@ -227,12 +217,14 @@ h1 {
   padding-top: 50px;
 }
 img {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 span {
   color: red;
 }
-
+.username {
+  margin-bottom: 20px;
+}
 .mb-12 {
   margin-bottom: 20px !important;
 }

@@ -123,7 +123,7 @@ public class UserController {
     }
     
     @GetMapping(value = {"/developers", "/developers/"})
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_PROJECTMANAGER')")
     public List<DeveloperDto> getAllDevelopers() {
         return userService.getAllDevelopers().stream()
                 .map(p -> converter.convertToDto(p))
@@ -131,7 +131,7 @@ public class UserController {
     }
     
     @GetMapping(value = {"/projectmanagers", "/projectmanagers/"})
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_PROJECTMANAGER')")
     public List<ProjectManagerDto> getAllProjectManagers() {
         return userService.getAllProjectManagers().stream()
                 .map(p -> converter.convertToDto(p))

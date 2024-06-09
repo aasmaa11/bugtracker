@@ -249,7 +249,6 @@ export default {
           (response) => {
             // JSON responses are automatically parsed.
             this.projects = response.data.slice(0, 3);
-            console.log(this.projects);
           },
           (error) => {
             this.errorGetProjects =
@@ -352,7 +351,6 @@ export default {
           (response) => {
             // JSON responses are automatically parsed.
             this.projects = response.data.slice(0, 3);
-            console.log(this.projects);
           },
           (error) => {
             this.errorGetProjects =

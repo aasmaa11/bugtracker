@@ -178,6 +178,9 @@ export default {
       selectedRole: "null",
     };
   },
+
+  // Methods inspired from: https://www.bezkoder.com/vue-3-authentication-jwt/
+  // and from: https://www.bezkoder.com/vue-refresh-token/
   computed: {
     currentUser() {
       return this.$store.state.auth.user;
@@ -244,7 +247,6 @@ export default {
         (response) => {
           // JSON responses are automatically parsed.
           this.selectedRole = response.data;
-          console.log(response.data);
         },
         (error) => {
           this.errorGetRole =
